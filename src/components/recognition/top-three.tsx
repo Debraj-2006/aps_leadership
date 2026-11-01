@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Medal, Trophy } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ROLE_LABELS } from "@/lib/roles";
@@ -18,9 +19,14 @@ export function TopThree({ entries, currentUserId }: { entries: LeaderboardEntry
 
   return (
     <section aria-labelledby="top-three-heading" className="space-y-3">
-      <h2 id="top-three-heading" className="type-eyebrow flex items-center gap-2 text-foreground">
-        <Trophy className="size-3.5 text-trace" /> Top 3 members
-      </h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="top-three-heading" className="type-eyebrow flex items-center gap-2 text-foreground">
+          <Trophy className="size-3.5 text-trace" /> Top 3 members
+        </h2>
+        <Link href="/leaderboard" className="text-xs font-medium text-primary underline-offset-4 hover:underline">
+          Full leaderboard
+        </Link>
+      </div>
       {top.length === 0 ? (
         <p className="rounded-xl border border-dashed bg-card/70 px-4 py-5 text-center text-sm text-muted-foreground">
           No points given yet. The top 3 appear here once members earn points.

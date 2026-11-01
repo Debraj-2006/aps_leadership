@@ -7,6 +7,7 @@ import {
   UserCog,
   ScrollText,
   Trophy,
+  Medal,
   ListChecks,
   Award,
   type LucideIcon,
@@ -47,6 +48,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Contribution",
     items: [
       { label: "Tasks", href: "/tasks", icon: ListChecks },
+      { label: "Leaderboard", href: "/leaderboard", icon: Medal },
       { label: "Points & badges", href: "/recognition", icon: Trophy, roles: ADMIN },
       { label: "My points & badges", href: "/my-recognition", icon: Award, roles: ["core"] },
     ],
@@ -65,6 +67,7 @@ const WORKING_GROUPS: NavGroup[] = [
     label: "Contribution",
     items: [
       { label: "My tasks", href: "/tasks", icon: ListChecks },
+      { label: "Leaderboard", href: "/leaderboard", icon: Medal },
       { label: "My points & badges", href: "/my-recognition", icon: Award },
     ],
   },
