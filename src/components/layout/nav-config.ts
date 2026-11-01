@@ -10,6 +10,7 @@ import {
   Medal,
   ListChecks,
   UsersRound,
+  Vote,
   Award,
   type LucideIcon,
 } from "lucide-react";
@@ -44,6 +45,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Events", href: "/events", icon: CalendarDays },
       { label: "Documents", href: "/documents", icon: FileText },
       { label: "Members", href: "/members", icon: UsersRound },
+      { label: "Voting", href: "/voting", icon: Vote },
     ],
   },
   {
@@ -75,7 +77,10 @@ const WORKING_GROUPS: NavGroup[] = [
   },
   {
     label: "Chapter",
-    items: [{ label: "Members", href: "/members", icon: UsersRound }],
+    items: [
+      { label: "Members", href: "/members", icon: UsersRound },
+      { label: "Voting", href: "/voting", icon: Vote },
+    ],
   },
 ];
 
