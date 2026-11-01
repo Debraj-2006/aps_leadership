@@ -9,6 +9,7 @@ import { BrandMark } from "@/components/brand/brand-mark";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { UserMenu } from "@/components/layout/user-menu";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { WORKING_HOME } from "@/lib/roles";
 import type { Profile, Notification } from "@/lib/types";
 
@@ -64,6 +65,7 @@ export function AppShell({
             </p>
           </div>
           <div className="flex items-center gap-1.5">
+            <ThemeToggle />
             <NotificationsBell initialNotifications={notifications} initialUnread={unreadCount} />
             <UserMenu profile={profile} />
           </div>

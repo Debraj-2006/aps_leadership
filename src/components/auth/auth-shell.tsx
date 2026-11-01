@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Award, CalendarDays, ListChecks, ArrowLeftRight } from "lucide-react";
 import apsLogo from "@/assets/brand/ieee-aps-logo.png";
 import { PropagationArt } from "@/components/brand/propagation-art";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const INSIDE = [
   { icon: ListChecks, label: "Tasks" },
@@ -67,7 +68,8 @@ export function AuthShell({
         </div>
       </aside>
 
-      <main className="flex min-w-0 flex-col">
+      <main className="relative flex min-w-0 flex-col">
+        <ThemeToggle className="absolute top-4 right-4 z-20 max-lg:bg-ink/70 max-lg:text-white max-lg:ring-1 max-lg:ring-white/15 max-lg:backdrop-blur-sm max-lg:hover:bg-ink max-lg:hover:text-white sm:top-5 sm:right-6" />
         <div className="relative overflow-hidden bg-ink px-6 pt-8 pb-7 text-white sm:px-10 lg:hidden">
           <div className="pointer-events-none absolute -top-2 -right-2 size-36 sm:size-44">
             <PropagationArt id="auth-mobile" className="size-full" />
