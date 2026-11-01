@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "@/components/brand/brand-mark";
+import { TenureCountdown } from "@/components/layout/tenure-countdown";
 import { isActivePath, visibleNavGroups } from "@/components/layout/nav-config";
 import { ROLE_LABELS, WORKING_HOME } from "@/lib/roles";
 import type { Profile } from "@/lib/types";
@@ -89,6 +90,10 @@ export function SidebarNav({
           </div>
         ))}
       </nav>
+
+      <div className="px-3 pb-3">
+        <TenureCountdown />
+      </div>
 
       <div className="border-t border-sidebar-border px-5 py-4">
         <p className="type-eyebrow text-[10px] text-sidebar-foreground/40">Signed in as</p>

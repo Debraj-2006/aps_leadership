@@ -10,6 +10,7 @@ import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { UserMenu } from "@/components/layout/user-menu";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { TenureCountdown } from "@/components/layout/tenure-countdown";
 import { WORKING_HOME } from "@/lib/roles";
 import type { Profile, Notification } from "@/lib/types";
 
@@ -58,13 +59,14 @@ export function AppShell({
               className="flex items-center gap-2 rounded-md lg:hidden"
             >
               <BrandMark className="size-7" />
-              <span className="type-display text-xs font-bold tracking-[0.02em]">IEEE AP-S</span>
+              <span className="type-display text-xs font-bold tracking-[0.02em] whitespace-nowrap max-sm:hidden">IEEE AP-S</span>
             </Link>
             <p className="hidden truncate text-[13px] text-muted-foreground lg:block">
               IEEE AP-S Student Branch Chapter · Institute of Engineering &amp; Management
             </p>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+            <TenureCountdown variant="compact" className="lg:hidden" />
             <ThemeToggle />
             <NotificationsBell initialNotifications={notifications} initialUnread={unreadCount} />
             <UserMenu profile={profile} />
