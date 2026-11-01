@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
-import { CalendarDays, Trophy, UserCheck, Users } from "lucide-react";
+import { CalendarDays, HandHeart, Trophy, UserCheck, Users } from "lucide-react";
 import { PropagationArt } from "@/components/brand/propagation-art";
 import type { Readout } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -19,6 +19,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { canApprovePendingUsers, isAdminRole, ROLE_LABELS, WORKING_HOME } from "@/lib/roles";
 import { getPendingApprovalCount } from "@/lib/actions/users";
+import { getPendingPointRequestCount } from "@/lib/actions/point-requests";
 import { initials, shortAcademicYear } from "@/lib/format";
 import type { ActivityLog, HandoverTask, Profile } from "@/lib/types";
 
@@ -69,7 +70,7 @@ export default async function DashboardPage() {
   const isAdmin = isAdminRole(profile.role);
   const supabase = await createClient();
 
-  const [stats, activity, deadlines, upcomingEvents, leaderboard, tasks, { data: currentCommittee }, pendingApprovals] = await Promise.all([
+  const [stats, activity, deadlines, upcomingEvents, leaderboard, tasks, { data: currentCommittee }, pendingApprovals, pendingPointRequests] = await Promise.all([
     getDashboardStats(),
     getRecentActivity(6),
     getUpcomingDeadlines(5),
@@ -83,6 +84,7 @@ export default async function DashboardPage() {
       .order("rank", { foreignTable: "designations", ascending: true })
       .limit(6),
     canApprovePendingUsers(profile.role) ? getPendingApprovalCount() : Promise.resolve(0),
+    canApprovePendingUsers(profile.role) ? getPendingPointRequestCount() : Promise.resolve(0),
   ]);
 
   const openTasks = tasks.filter((t) => t.status !== "completed").length;
@@ -141,6 +143,24 @@ export default async function DashboardPage() {
               {pendingApprovals} {pendingApprovals === 1 ? "person is" : "people are"} waiting for approval
             </p>
             <p className="text-sm text-muted-foreground">They can&apos;t sign in until an Executive approves them.</p>
+          </div>
+          <span className="text-sm font-medium text-primary group-hover:underline">Review</span>
+        </Link>
+      )}
+
+      {pendingPointRequests > 0 && (
+        <Link
+          href="/leaderboard"
+          className="group flex items-center gap-4 rounded-xl border border-trace/50 bg-trace/10 px-5 py-4 transition-colors hover:bg-trace/15"
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-trace text-ink">
+            <HandHeart className="size-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-medium">
+              {pendingPointRequests} point request{pendingPointRequests === 1 ? "" : "s"} to review
+            </p>
+            <p className="text-sm text-muted-foreground">Members asked to recognise a teammate. Points are added once you approve.</p>
           </div>
           <span className="text-sm font-medium text-primary group-hover:underline">Review</span>
         </Link>

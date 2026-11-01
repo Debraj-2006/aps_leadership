@@ -8,15 +8,35 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeChip } from "@/components/recognition/badge-chip";
 import { getMyRecognition } from "@/lib/actions/recognition";
 import { getBadge } from "@/lib/badges";
+import { getCurrentProfile } from "@/lib/auth";
+import { peerPointRecipientRoles } from "@/lib/roles";
+import { getMyPointRequests, getPointRequestOptions } from "@/lib/actions/point-requests";
+import { RequestPointsDialog } from "@/components/recognition/request-points-dialog";
+import { MyPointRequests } from "@/components/recognition/point-request-lists";
 
 export default async function MyRecognitionPage() {
-  const { points, pointHistory, badges } = await getMyRecognition();
+  const { profile } = await getCurrentProfile();
+  const canRequest = peerPointRecipientRoles(profile.role).length > 0;
+  const [{ points, pointHistory, badges }, myRequests, requestOptions] = await Promise.all([
+    getMyRecognition(),
+    canRequest ? getMyPointRequests() : Promise.resolve([]),
+    canRequest ? getPointRequestOptions() : Promise.resolve(null),
+  ]);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="My points & badges"
-        description="Points and event badges you've earned from the Executive Committee."
+        description={
+          canRequest
+            ? `Points and event badges you've earned. You can also request points for a ${profile.role === "working" ? "Core" : "Working"} Committee member who helped out.`
+            : "Points and event badges you've earned."
+        }
+        actions={
+          canRequest && requestOptions ? (
+            <RequestPointsDialog members={requestOptions.members} events={requestOptions.events} myRole={profile.role} />
+          ) : undefined
+        }
       />
 
       <ReadoutStrip
@@ -92,6 +112,8 @@ export default async function MyRecognitionPage() {
           )}
         </CardContent>
       </Card>
+
+      {canRequest && <MyPointRequests requests={myRequests} />}
     </div>
   );
 }

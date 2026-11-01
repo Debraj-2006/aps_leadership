@@ -258,7 +258,7 @@ export async function awardPoints(formData: FormData) {
     title: points > 0 ? `You earned ${points} point${points === 1 ? "" : "s"}` : "Points deducted",
     message: `${myName} ${verb}: ${reason}`,
     type: "info",
-    link: "/leaderboard",
+    link: recipient.role === "working" ? "/my-recognition" : "/leaderboard",
   });
 
   await logActivity({
@@ -308,7 +308,7 @@ export async function awardBadge(formData: FormData) {
     title: `You earned the ${label} badge`,
     message: `${myName} awarded you "${label}" for ${event.title}.${note ? ` ${note}` : ""}`,
     type: "info",
-    link: "/leaderboard",
+    link: recipient.role === "working" ? "/my-recognition" : "/leaderboard",
   });
 
   await logActivity({

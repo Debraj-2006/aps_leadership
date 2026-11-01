@@ -14,7 +14,10 @@ import { RemoveAwardButton } from "@/components/recognition/remove-award-button"
 import { getCurrentProfile } from "@/lib/auth";
 import { getLeaderboard, getRecentRecognition, getRecognitionOptions } from "@/lib/actions/recognition";
 import { getBadge } from "@/lib/badges";
-import { canAwardRecognition, ROLE_LABELS } from "@/lib/roles";
+import { canAwardRecognition, peerPointRecipientRoles, ROLE_LABELS } from "@/lib/roles";
+import { getMyPointRequests, getPendingPointRequests, getPointRequestOptions } from "@/lib/actions/point-requests";
+import { RequestPointsDialog } from "@/components/recognition/request-points-dialog";
+import { MyPointRequests, PointRequestReviewList } from "@/components/recognition/point-request-lists";
 import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -27,11 +30,15 @@ const MEDAL_COLOR: Record<number, string> = {
 export default async function LeaderboardPage() {
   const { profile } = await getCurrentProfile();
   const canAward = canAwardRecognition(profile.role);
+  const canRequest = peerPointRecipientRoles(profile.role).length > 0;
 
-  const [leaderboard, feed, options] = await Promise.all([
+  const [leaderboard, feed, options, pendingRequests, myRequests, requestOptions] = await Promise.all([
     getLeaderboard(),
     getRecentRecognition(20),
     canAward ? getRecognitionOptions() : Promise.resolve(null),
+    canAward ? getPendingPointRequests() : Promise.resolve([]),
+    canRequest ? getMyPointRequests() : Promise.resolve([]),
+    canRequest ? getPointRequestOptions() : Promise.resolve(null),
   ]);
 
   const me = leaderboard.find((e) => e.profile_id === profile.id);
@@ -44,16 +51,20 @@ export default async function LeaderboardPage() {
     <div className="space-y-6">
       <PageHeader
         title="Leaderboard"
-        description="Points and event badges given by the Executive Committee to Core and Working Committee members."
+        description="Points and event badges for Core and Working Committee members, given or approved by the Executive Committee."
         actions={
           canAward && options ? (
             <>
               <AwardBadgeDialog members={options.members} events={options.events} />
               <AwardPointsDialog members={options.members} events={options.events} />
             </>
+          ) : canRequest && requestOptions ? (
+            <RequestPointsDialog members={requestOptions.members} events={requestOptions.events} myRole={profile.role} />
           ) : undefined
         }
       />
+
+      {canAward && <PointRequestReviewList requests={pendingRequests} />}
 
       <ReadoutStrip
         items={[
@@ -259,6 +270,8 @@ export default async function LeaderboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {canRequest && <MyPointRequests requests={myRequests} />}
     </div>
   );
 }

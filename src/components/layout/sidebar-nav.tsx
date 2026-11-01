@@ -10,11 +10,11 @@ import { cn } from "@/lib/utils";
 
 export function SidebarNav({
   profile,
-  pendingApprovals = 0,
+  navBadges = {},
   onNavigate,
 }: {
   profile: Pick<Profile, "role" | "position">;
-  pendingApprovals?: number;
+  navBadges?: Record<string, number>;
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
@@ -73,12 +73,12 @@ export function SidebarNav({
                         )}
                       />
                       {item.label}
-                      {item.href === "/admin/users" && pendingApprovals > 0 && (
+                      {(navBadges[item.href] ?? 0) > 0 && (
                         <span
                           className="type-readout ml-auto rounded-full bg-trace px-1.5 py-0.5 text-[10px] leading-none font-semibold text-ink"
-                          aria-label={`${pendingApprovals} waiting for approval`}
+                          aria-label={`${navBadges[item.href]} waiting for review`}
                         >
-                          {pendingApprovals}
+                          {navBadges[item.href]}
                         </span>
                       )}
                     </Link>
