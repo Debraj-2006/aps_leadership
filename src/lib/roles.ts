@@ -70,8 +70,8 @@ export function canAssignTasks(role: UserRole): boolean {
   return assignableRolesFor(role).length > 0;
 }
 
-// Pages Working Committee members can open: their tasks, their points and badges, and the leaderboard.
-export const WORKING_ALLOWED_PATHS = ["/tasks", "/my-recognition", "/leaderboard"];
+// Pages Working Committee members can open: their tasks, their points and badges, the leaderboard and the member list.
+export const WORKING_ALLOWED_PATHS = ["/tasks", "/my-recognition", "/leaderboard", "/members"];
 export const WORKING_HOME = "/tasks";
 
 // Executive and Core Committee members must state their position when signing up.

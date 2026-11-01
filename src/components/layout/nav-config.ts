@@ -9,6 +9,7 @@ import {
   Trophy,
   Medal,
   ListChecks,
+  UsersRound,
   Award,
   type LucideIcon,
 } from "lucide-react";
@@ -42,6 +43,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Events", href: "/events", icon: CalendarDays },
       { label: "Documents", href: "/documents", icon: FileText },
+      { label: "Members", href: "/members", icon: UsersRound },
     ],
   },
   {
@@ -70,6 +72,10 @@ const WORKING_GROUPS: NavGroup[] = [
       { label: "Leaderboard", href: "/leaderboard", icon: Medal },
       { label: "My points & badges", href: "/my-recognition", icon: Award },
     ],
+  },
+  {
+    label: "Chapter",
+    items: [{ label: "Members", href: "/members", icon: UsersRound }],
   },
 ];
 

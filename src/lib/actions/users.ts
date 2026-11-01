@@ -17,6 +17,17 @@ async function requireRole(check: (role: UserRole) => boolean) {
 
 const DEFAULT_PASSWORD = "IEEEAPS@2025";
 
+// Public member directory: approved members only, without emails or IEEE numbers.
+export async function getMemberDirectory() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, full_name, role, position, created_at")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+  return (data ?? []) as { id: string; full_name: string; role: UserRole; position: string | null; created_at: string }[];
+}
+
 export async function getAllProfiles() {
   const supabase = await createClient();
   const { data } = await supabase.from("profiles").select("*").order("full_name");
