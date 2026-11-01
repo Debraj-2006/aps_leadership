@@ -23,10 +23,12 @@ import type { UserRole } from "@/lib/types";
 const QUICK_POINTS = [5, 10, 25];
 
 export function RequestPointsDialog({
+  meId,
   members,
   events,
   myRole,
 }: {
+  meId: string;
   members: { id: string; full_name: string; email: string; role: UserRole }[];
   events: { id: string; title: string; event_date: string }[];
   myRole: UserRole;
@@ -36,7 +38,10 @@ export function RequestPointsDialog({
   const [pending, startTransition] = useTransition();
 
   const target = myRole === "working" ? "Core Committee" : "Working Committee";
-  const memberItems = members.map((m) => ({ value: m.id, label: m.full_name || m.email }));
+  const memberItems = [
+    { value: meId, label: "Myself (for my own work)" },
+    ...members.map((m) => ({ value: m.id, label: `${m.full_name || m.email} · ${target}` })),
+  ];
   const eventItems = [{ value: "none", label: "Not linked to an event" }, ...events.map((e) => ({ value: e.id, label: e.title }))];
 
   function handleSubmit(formData: FormData) {
@@ -58,19 +63,17 @@ export function RequestPointsDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Request points for a teammate</DialogTitle>
+          <DialogTitle>Request points</DialogTitle>
           <DialogDescription>
-            Recognise a {target} member. An Executive reviews the request, and the points are added once they approve it.
+            Ask for points for your own work, or recognise a {target} member. An Executive reviews every request, and the points are added once they approve it.
           </DialogDescription>
         </DialogHeader>
 
-        {members.length === 0 ? (
-          <p className="text-sm text-muted-foreground">There are no active {target} members to recognise yet.</p>
-        ) : (
+        {(
           <form action={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>{target} member</Label>
-              <Select name="recipient_id" required items={memberItems}>
+              <Label>Who are the points for?</Label>
+              <Select name="recipient_id" required defaultValue={meId} items={memberItems}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a member" />
                 </SelectTrigger>

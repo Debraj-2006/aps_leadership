@@ -37,13 +37,21 @@ export function PointRequestReviewList({ requests }: { requests: PointRequestRow
             <div className="flex items-start gap-3">
               <PointsChip points={r.points} />
               <div className="min-w-0 flex-1 text-sm">
-                <p className="leading-snug">
-                  <span className="font-medium">{r.requester?.full_name ?? "A former member"}</span>
-                  {r.requester && <span className="text-muted-foreground"> ({ROLE_LABELS[r.requester.role]})</span>} asks to give{" "}
-                  <span className="font-medium">{r.recipient?.full_name ?? "a former member"}</span>
-                  {r.recipient && <span className="text-muted-foreground"> ({ROLE_LABELS[r.recipient.role]})</span>} {r.points}{" "}
-                  points
-                </p>
+                {r.requested_by === r.recipient_id ? (
+                  <p className="leading-snug">
+                    <span className="font-medium">{r.requester?.full_name ?? "A former member"}</span>
+                    {r.requester && <span className="text-muted-foreground"> ({ROLE_LABELS[r.requester.role]})</span>} asks for{" "}
+                    {r.points} points for their own work
+                  </p>
+                ) : (
+                  <p className="leading-snug">
+                    <span className="font-medium">{r.requester?.full_name ?? "A former member"}</span>
+                    {r.requester && <span className="text-muted-foreground"> ({ROLE_LABELS[r.requester.role]})</span>} asks to give{" "}
+                    <span className="font-medium">{r.recipient?.full_name ?? "a former member"}</span>
+                    {r.recipient && <span className="text-muted-foreground"> ({ROLE_LABELS[r.recipient.role]})</span>} {r.points}{" "}
+                    points
+                  </p>
+                )}
                 <p className="mt-1.5 rounded-md bg-muted/60 px-3 py-2">{r.reason}</p>
                 <p className="mt-1.5 text-xs text-muted-foreground">
                   {r.event?.title ? `${r.event.title} · ` : ""}
@@ -76,7 +84,7 @@ export function MyPointRequests({ requests }: { requests: PointRequestRow[] }) {
             compact
             icon={Inbox}
             title="No requests yet"
-            description="Use “Request points” to recognise a teammate. An Executive approves it before the points are added."
+            description="Use “Request points” to ask for points for your own work or to recognise a teammate. An Executive approves it before the points are added."
           />
         ) : (
           <ul className="divide-y">
@@ -87,7 +95,10 @@ export function MyPointRequests({ requests }: { requests: PointRequestRow[] }) {
                   <PointsChip points={r.points} />
                   <div className="min-w-0 flex-1 text-sm">
                     <p>
-                      For <span className="font-medium">{r.recipient?.full_name ?? "a former member"}</span>
+                      For{" "}
+                      <span className="font-medium">
+                        {r.requested_by === r.recipient_id ? "yourself" : (r.recipient?.full_name ?? "a former member")}
+                      </span>
                     </p>
                     <p className="text-muted-foreground">{r.reason}</p>
                     <p className="mt-1 text-xs text-muted-foreground">

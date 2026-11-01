@@ -58,8 +58,8 @@ export default async function LeaderboardPage() {
               <AwardBadgeDialog members={options.members} events={options.events} />
               <AwardPointsDialog members={options.pointMembers} events={options.events} canAwardAnyone={options.canAwardAnyone} />
             </>
-          ) : canRequest && requestOptions ? (
-            <RequestPointsDialog members={requestOptions.members} events={requestOptions.events} myRole={profile.role} />
+          ) : canRequest && requestOptions?.me ? (
+            <RequestPointsDialog meId={requestOptions.me.id} members={requestOptions.members} events={requestOptions.events} myRole={profile.role} />
           ) : undefined
         }
       />

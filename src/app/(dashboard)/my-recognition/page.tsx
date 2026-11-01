@@ -36,8 +36,8 @@ export default async function MyRecognitionPage() {
             : "Points and event badges you've earned."
         }
         actions={
-          canRequest && requestOptions ? (
-            <RequestPointsDialog members={requestOptions.members} events={requestOptions.events} myRole={profile.role} />
+          canRequest && requestOptions?.me ? (
+            <RequestPointsDialog meId={requestOptions.me.id} members={requestOptions.members} events={requestOptions.events} myRole={profile.role} />
           ) : undefined
         }
       />

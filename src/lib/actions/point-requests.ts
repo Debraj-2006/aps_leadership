@@ -11,6 +11,8 @@ export type PointRequestStatus = "pending" | "approved" | "declined";
 
 export interface PointRequestRow {
   id: string;
+  requested_by: string | null;
+  recipient_id: string;
   points: number;
   reason: string;
   status: PointRequestStatus;
@@ -24,7 +26,7 @@ export interface PointRequestRow {
 }
 
 const SELECT =
-  "id, points, reason, status, review_note, created_at, reviewed_at, requester:profiles!point_requests_requested_by_fkey(full_name, role), recipient:profiles!point_requests_recipient_id_fkey(full_name, role), reviewer:profiles!point_requests_reviewed_by_fkey(full_name), event:events(title)";
+  "id, requested_by, recipient_id, points, reason, status, review_note, created_at, reviewed_at, requester:profiles!point_requests_requested_by_fkey(full_name, role), recipient:profiles!point_requests_recipient_id_fkey(full_name, role), reviewer:profiles!point_requests_reviewed_by_fkey(full_name), event:events(title)";
 
 function revalidateRequests() {
   revalidatePath("/recognition");
@@ -35,7 +37,7 @@ function revalidateRequests() {
 export async function getPointRequestOptions() {
   const me = await getSessionProfile();
   const roles = me ? peerPointRecipientRoles(me.role) : [];
-  if (!me || roles.length === 0) return { members: [], events: [] };
+  if (!me || roles.length === 0) return { me: null, members: [], events: [] };
   const supabase = await createClient();
   const [{ data: members }, { data: events }] = await Promise.all([
     supabase
@@ -48,6 +50,7 @@ export async function getPointRequestOptions() {
     supabase.from("events").select("id, title, event_date").order("event_date", { ascending: false }),
   ]);
   return {
+    me: { id: me.id, full_name: me.full_name, email: me.email, role: me.role },
     members: (members ?? []) as { id: string; full_name: string; email: string; role: UserRole }[],
     events: (events ?? []) as { id: string; title: string; event_date: string }[],
   };
@@ -105,14 +108,16 @@ export async function createPointRequest(formData: FormData) {
 
   const supabase = await createClient();
   const { data: recipient } = await supabase.from("profiles").select("id, full_name, role").eq("id", recipientId).single();
-  if (!recipient || recipient.id === me.id || !allowed.includes(recipient.role as UserRole)) {
+  const forSelf = recipient?.id === me.id;
+  if (!recipient || (!forSelf && !allowed.includes(recipient.role as UserRole))) {
     return {
       error:
         me.role === "working"
-          ? "Working Committee members can request points for Core Committee members."
-          : "Core Committee members can request points for Working Committee members.",
+          ? "Working Committee members can request points for themselves or for Core Committee members."
+          : "Core Committee members can request points for themselves or for Working Committee members.",
     };
   }
+  const forWhom = forSelf ? "themselves" : recipient.full_name;
 
   const { data, error } = await supabase
     .from("point_requests")
@@ -127,7 +132,7 @@ export async function createPointRequest(formData: FormData) {
       reviewers.map((r) => ({
         recipient_id: r.id,
         title: "Point request to review",
-        message: `${me.full_name} (${ROLE_LABELS[me.role]}) requested ${points} points for ${recipient.full_name}: ${reason}`,
+        message: `${me.full_name} (${ROLE_LABELS[me.role]}) requested ${points} points for ${forWhom}: ${reason}`,
         type: "approval" as const,
         link: "/recognition",
       }))
@@ -135,7 +140,7 @@ export async function createPointRequest(formData: FormData) {
   }
 
   await logActivity({
-    action: `requested ${points} points for ${recipient.full_name}`,
+    action: `requested ${points} points for ${forWhom}`,
     entityType: "point_request",
     entityId: data.id,
     actorId: me.id,
@@ -182,14 +187,15 @@ export async function reviewPointRequest(id: string, approve: boolean, note?: st
 
   const recipientRow = request.recipient as unknown as { full_name: string; role: UserRole } | null;
   const recipientName = recipientRow?.full_name ?? "the member";
+  const selfRequest = request.requested_by === request.recipient_id;
   const notes = [];
-  if (request.requested_by) {
+  if (request.requested_by && !(approve && selfRequest)) {
     notes.push({
       recipient_id: request.requested_by,
       title: approve ? "Your point request was approved" : "Your point request was declined",
       message: approve
         ? `${me.full_name} approved ${request.points} points for ${recipientName}.`
-        : `${me.full_name} declined your request for ${recipientName}.${note ? ` ${note}` : ""}`,
+        : `${me.full_name} declined your request${selfRequest ? "" : ` for ${recipientName}`}.${note ? ` ${note}` : ""}`,
       type: "approval" as const,
       link: "/my-recognition",
     });
@@ -198,7 +204,9 @@ export async function reviewPointRequest(id: string, approve: boolean, note?: st
     notes.push({
       recipient_id: request.recipient_id,
       title: `You earned ${request.points} point${request.points === 1 ? "" : "s"}`,
-      message: `${request.reason} (requested by a teammate, approved by ${me.full_name})`,
+      message: selfRequest
+        ? `${me.full_name} approved your request: ${request.reason}`
+        : `${request.reason} (requested by a teammate, approved by ${me.full_name})`,
       type: "info" as const,
       link: "/my-recognition",
     });
