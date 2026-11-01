@@ -35,7 +35,7 @@ export default async function RecognitionPage() {
         actions={
           <>
             <AwardBadgeDialog members={options.members} events={options.events} />
-            <AwardPointsDialog members={options.members} events={options.events} />
+            <AwardPointsDialog members={options.pointMembers} events={options.events} canAwardAnyone={options.canAwardAnyone} />
           </>
         }
       />

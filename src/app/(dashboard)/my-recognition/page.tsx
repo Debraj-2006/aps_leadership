@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Award, Sparkles } from "lucide-react";
+import { Award, Paperclip, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/shared/page-header";
 import { ReadoutStrip } from "@/components/shared/readout-strip";
@@ -76,6 +76,17 @@ export default async function MyRecognitionPage() {
                       {b.awarder_name ? `${b.awarder_name} · ` : ""}
                       {format(new Date(b.created_at), "dd MMM yyyy")}
                     </p>
+                    {b.media_url && (
+                      <a
+                        href={b.media_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-primary underline-offset-4 hover:underline"
+                      >
+                        <Paperclip className="size-3.5" />
+                        {b.media_type === "application/pdf" ? "View certificate" : "View photo"}
+                      </a>
+                    )}
                   </div>
                 </li>
               ))}

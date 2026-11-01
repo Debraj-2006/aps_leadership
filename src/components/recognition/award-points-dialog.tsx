@@ -41,12 +41,14 @@ export function AwardPointsDialog({
   events,
   defaultRecipientId,
   iconOnly = false,
+  canAwardAnyone = false,
   recipientName,
 }: {
   members: RecognitionMemberOption[];
   events: RecognitionEventOption[];
   defaultRecipientId?: string;
   iconOnly?: boolean;
+  canAwardAnyone?: boolean;
   recipientName?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -91,7 +93,9 @@ export function AwardPointsDialog({
         <DialogHeader>
           <DialogTitle>Give points</DialogTitle>
           <DialogDescription>
-            Reward a Core or Working Committee member. They get a notification and see it on My points &amp; badges.
+            {canAwardAnyone
+              ? "You can give points to anyone, including Executive Committee members. They get a notification straight away."
+              : "Reward a Core or Working Committee member. They get a notification and see it on My points & badges."}
           </DialogDescription>
         </DialogHeader>
 

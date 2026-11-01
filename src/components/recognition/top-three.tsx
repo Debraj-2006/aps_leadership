@@ -64,7 +64,7 @@ export function TopThree({ entries, currentUserId }: { entries: LeaderboardEntry
                 {e.badges.length > 0 && (
                   <div className="flex flex-wrap gap-1 border-t pt-3">
                     {e.badges.slice(0, 3).map((b) => (
-                      <BadgeChip key={b.id} badge={b.badge} eventTitle={b.event_title} label />
+                      <BadgeChip key={b.id} badge={b.badge} eventTitle={b.event_title} mediaUrl={b.media_url} label />
                     ))}
                     {e.badges.length > 3 && (
                       <span className="inline-flex h-5 items-center px-1 text-[11px] text-muted-foreground">+{e.badges.length - 3} more</span>

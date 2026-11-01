@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
-import { Sparkles } from "lucide-react";
+import { Paperclip, Sparkles } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { BadgeChip } from "@/components/recognition/badge-chip";
 import { RemoveAwardButton } from "@/components/recognition/remove-award-button";
@@ -50,6 +50,17 @@ export function RecognitionFeed({ items, canUndo = false }: { items: Recognition
                 {item.event_title && <span className="text-muted-foreground"> · {item.event_title}</span>}
               </p>
               {item.text && <p className="mt-0.5 text-muted-foreground">{item.text}</p>}
+              {item.media_url && (
+                <a
+                  href={item.media_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  <Paperclip className="size-3.5" />
+                  {item.media_type === "application/pdf" ? "View certificate" : "View photo"}
+                </a>
+              )}
               <p className="mt-0.5 text-xs text-muted-foreground">
                 {item.awarder_name ? `${item.awarder_name} · ` : ""}
                 {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}

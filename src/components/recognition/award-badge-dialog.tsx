@@ -194,6 +194,14 @@ export function AwardBadgeDialog({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="media">Certificate or photo (optional)</Label>
+              <Input id="media" name="media" type="file" accept="image/*,application/pdf" />
+              <p className="text-xs text-muted-foreground">
+                An image or PDF up to 3.5 MB. Everyone can open it from the badge.
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="note">Note (optional)</Label>
               <Textarea id="note" name="note" rows={2} placeholder="What did they do well?" />
             </div>

@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // Document uploads and badge certificates go through server actions (default limit 1 MB).
+    // Vercel caps request bodies at 4.5 MB, so stay just under it.
+    serverActions: { bodySizeLimit: "4mb" },
+  },
   turbopack: {
     rules: {
       "*.css": {

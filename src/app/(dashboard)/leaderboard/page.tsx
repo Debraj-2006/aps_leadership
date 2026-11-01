@@ -56,7 +56,7 @@ export default async function LeaderboardPage() {
           canAward && options ? (
             <>
               <AwardBadgeDialog members={options.members} events={options.events} />
-              <AwardPointsDialog members={options.members} events={options.events} />
+              <AwardPointsDialog members={options.pointMembers} events={options.events} canAwardAnyone={options.canAwardAnyone} />
             </>
           ) : canRequest && requestOptions ? (
             <RequestPointsDialog members={requestOptions.members} events={requestOptions.events} myRole={profile.role} />
@@ -173,7 +173,7 @@ export default async function LeaderboardPage() {
                           ) : (
                             <div className="flex flex-wrap gap-1">
                               {e.badges.slice(0, 3).map((b) => (
-                                <BadgeChip key={b.id} badge={b.badge} eventTitle={b.event_title} label />
+                                <BadgeChip key={b.id} badge={b.badge} eventTitle={b.event_title} mediaUrl={b.media_url} label />
                               ))}
                               {e.badges.length > 3 && (
                                 <span className="inline-flex h-5 items-center px-1 text-[11px] text-muted-foreground">
@@ -192,20 +192,24 @@ export default async function LeaderboardPage() {
                         {canAward && options && (
                           <TableCell className="pr-4 text-right">
                             <div className="flex justify-end gap-1">
-                              <AwardPointsDialog
-                                members={options.members}
-                                events={options.events}
-                                defaultRecipientId={e.profile_id}
-                                recipientName={e.full_name}
-                                iconOnly
-                              />
-                              <AwardBadgeDialog
-                                members={options.members}
-                                events={options.events}
-                                defaultRecipientId={e.profile_id}
-                                recipientName={e.full_name}
-                                iconOnly
-                              />
+                              {options.pointMembers.some((m) => m.id === e.profile_id) && (
+                                <AwardPointsDialog
+                                  members={options.pointMembers}
+                                  events={options.events}
+                                  defaultRecipientId={e.profile_id}
+                                  recipientName={e.full_name}
+                                  iconOnly
+                                />
+                              )}
+                              {options.members.some((m) => m.id === e.profile_id) && (
+                                <AwardBadgeDialog
+                                  members={options.members}
+                                  events={options.events}
+                                  defaultRecipientId={e.profile_id}
+                                  recipientName={e.full_name}
+                                  iconOnly
+                                />
+                              )}
                             </div>
                           </TableCell>
                         )}
