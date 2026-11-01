@@ -53,16 +53,16 @@ export function MembersPointsTable({ entries, currentUserId }: { entries: Leader
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="min-w-48 whitespace-normal">
                       {e.badges.length === 0 ? (
                         <span className="text-xs text-muted-foreground">—</span>
                       ) : (
                         <div className="flex flex-wrap gap-1">
-                          {e.badges.slice(0, 6).map((b) => (
-                            <BadgeChip key={b.id} badge={b.badge} eventTitle={b.event_title} compact />
+                          {e.badges.slice(0, 3).map((b) => (
+                            <BadgeChip key={b.id} badge={b.badge} eventTitle={b.event_title} label />
                           ))}
-                          {e.badges.length > 6 && (
-                            <span className="inline-flex h-7 items-center px-1 text-xs text-muted-foreground">+{e.badges.length - 6}</span>
+                          {e.badges.length > 3 && (
+                            <span className="inline-flex h-5 items-center px-1 text-[11px] text-muted-foreground">+{e.badges.length - 3} more</span>
                           )}
                         </div>
                       )}

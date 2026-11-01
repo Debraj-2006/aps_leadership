@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Award, Loader2 } from "lucide-react";
+import { Award, Loader2, PenLine } from "lucide-react";
 import { cn } from "cn";
 import {
   Dialog,
@@ -14,11 +14,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { awardBadge } from "@/lib/actions/recognition";
-import { BADGES } from "@/lib/badges";
+import { BADGES, CUSTOM_BADGE_MAX, customBadgeKey } from "@/lib/badges";
+import { BadgeChip } from "@/components/recognition/badge-chip";
 import { ROLE_LABELS } from "@/lib/roles";
 import type { RecognitionEventOption, RecognitionMemberOption } from "./award-points-dialog";
 
@@ -37,6 +39,7 @@ export function AwardBadgeDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [badge, setBadge] = useState<string>(BADGES[0].key);
+  const [customName, setCustomName] = useState("");
   const [pending, startTransition] = useTransition();
 
   const memberItems = members.map((m) => ({ value: m.id, label: m.full_name || m.email }));
@@ -50,6 +53,8 @@ export function AwardBadgeDialog({
       else {
         toast.success("Badge awarded.");
         setOpen(false);
+        setCustomName("");
+        setBadge(BADGES[0].key);
       }
     });
   }
@@ -148,10 +153,44 @@ export function AwardBadgeDialog({
                     </button>
                   );
                 })}
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={badge === "other"}
+                  title="Write your own badge name"
+                  onClick={() => setBadge("other")}
+                  className={cn(
+                    "flex items-center gap-2 rounded-md border border-dashed p-2 text-left text-xs font-medium transition-colors",
+                    badge === "other" ? "border-primary ring-2 ring-primary/30" : "hover:bg-muted"
+                  )}
+                >
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-teal-100 text-teal-800 dark:bg-teal-500/15 dark:text-teal-300">
+                    <PenLine className="size-3.5" />
+                  </span>
+                  Other…
+                </button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {BADGES.find((b) => b.key === badge)?.description}
-              </p>
+              {badge === "other" ? (
+                <div className="space-y-1.5 pt-1">
+                  <Label htmlFor="custom_badge">Badge name</Label>
+                  <Input
+                    id="custom_badge"
+                    name="custom_badge"
+                    required
+                    minLength={2}
+                    maxLength={CUSTOM_BADGE_MAX}
+                    autoFocus
+                    placeholder="e.g. Best Speaker"
+                    value={customName}
+                    onChange={(e) => setCustomName(e.target.value)}
+                  />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    Preview: {customName.trim() ? <BadgeChip badge={customBadgeKey(customName)} /> : <span>type a name</span>}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">{BADGES.find((b) => b.key === badge)?.description}</p>
+              )}
             </div>
 
             <div className="space-y-2">

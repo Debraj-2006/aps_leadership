@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { logActivity } from "@/lib/actions/activity";
-import { BADGES, getBadge } from "@/lib/badges";
+import { BADGES, CUSTOM_BADGE_MAX, customBadgeKey, getBadge } from "@/lib/badges";
 import { canAwardRecognition, RECOGNITION_RECIPIENT_ROLES } from "@/lib/roles";
 import { getAuthUser } from "@/lib/auth";
 import type { UserRole } from "@/lib/types";
@@ -280,12 +280,21 @@ export async function awardBadge(formData: FormData) {
 
   const recipientId = String(formData.get("recipient_id") || "");
   const eventId = String(formData.get("event_id") || "");
-  const badge = String(formData.get("badge") || "");
+  const choice = String(formData.get("badge") || "");
+  const customName = String(formData.get("custom_badge") || "").trim().replace(/\s+/g, " ");
   const note = String(formData.get("note") || "").trim() || null;
 
   if (!recipientId) return { error: "Choose a member." };
   if (!eventId) return { error: "Choose the event this badge is for." };
-  if (!BADGES.some((b) => b.key === badge)) return { error: "Choose a badge." };
+
+  let badge = choice;
+  if (choice === "other") {
+    if (customName.length < 2) return { error: "Write a name for the badge." };
+    if (customName.length > CUSTOM_BADGE_MAX) return { error: `Keep the badge name under ${CUSTOM_BADGE_MAX} characters.` };
+    badge = customBadgeKey(customName);
+  } else if (!BADGES.some((b) => b.key === choice)) {
+    return { error: "Choose a badge." };
+  }
 
   const recipient = await requireRecipient(supabase, recipientId);
   if (!recipient) return { error: "Badges can only be given to Core or Working Committee members." };

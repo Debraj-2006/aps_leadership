@@ -32,14 +32,19 @@ export const BADGES: BadgeDefinition[] = [
   { key: "rising_star", label: "Rising Star", description: "Newer member who showed great promise.", icon: Rocket, className: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/15 dark:text-indigo-300" },
 ];
 
-const FALLBACK: BadgeDefinition = {
-  key: "other",
-  label: "Recognition",
-  description: "",
-  icon: Award,
-  className: "bg-muted text-foreground",
-};
+// Executives can also write their own badge name; it's stored as "custom:<name>".
+export const CUSTOM_BADGE_PREFIX = "custom:";
+export const CUSTOM_BADGE_MAX = 40;
+
+const CUSTOM_STYLE = "bg-teal-100 text-teal-800 dark:bg-teal-500/15 dark:text-teal-300";
+
+export function customBadgeKey(name: string) {
+  return `${CUSTOM_BADGE_PREFIX}${name.trim()}`;
+}
 
 export function getBadge(key: string): BadgeDefinition {
-  return BADGES.find((b) => b.key === key) ?? { ...FALLBACK, key, label: key };
+  const preset = BADGES.find((b) => b.key === key);
+  if (preset) return preset;
+  const label = key.startsWith(CUSTOM_BADGE_PREFIX) ? key.slice(CUSTOM_BADGE_PREFIX.length) : key;
+  return { key, label, description: "A badge written by the Executive Committee.", icon: Award, className: CUSTOM_STYLE };
 }

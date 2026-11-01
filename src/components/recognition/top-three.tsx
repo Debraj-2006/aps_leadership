@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Medal, Trophy } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { BadgeChip } from "@/components/recognition/badge-chip";
 import { ROLE_LABELS } from "@/lib/roles";
 import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -37,7 +38,8 @@ export function TopThree({ entries, currentUserId }: { entries: LeaderboardEntry
             const place = PLACE[e.rank as 1 | 2 | 3];
             const isMe = e.profile_id === currentUserId;
             return (
-              <li key={e.profile_id} className={cn("flex items-center gap-3 rounded-xl border bg-card p-4", place.ring)}>
+              <li key={e.profile_id} className={cn("flex flex-col gap-3 rounded-xl border bg-card p-4", place.ring)}>
+                <div className="flex items-center gap-3">
                 <div className="flex w-10 shrink-0 flex-col items-center">
                   <Medal className={cn("size-6", place.medal)} />
                   <span className="type-display mt-0.5 text-sm font-bold">{place.label}</span>
@@ -58,6 +60,17 @@ export function TopThree({ entries, currentUserId }: { entries: LeaderboardEntry
                     pts · {e.badges.length} badge{e.badges.length === 1 ? "" : "s"}
                   </p>
                 </div>
+                </div>
+                {e.badges.length > 0 && (
+                  <div className="flex flex-wrap gap-1 border-t pt-3">
+                    {e.badges.slice(0, 3).map((b) => (
+                      <BadgeChip key={b.id} badge={b.badge} eventTitle={b.event_title} label />
+                    ))}
+                    {e.badges.length > 3 && (
+                      <span className="inline-flex h-5 items-center px-1 text-[11px] text-muted-foreground">+{e.badges.length - 3} more</span>
+                    )}
+                  </div>
+                )}
               </li>
             );
           })}
