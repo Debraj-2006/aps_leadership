@@ -26,5 +26,5 @@ export function ExportHandoverButton(params: {
     });
   }
 
-  return <ExportPdfButton onExport={handleExport} label="Export Summary" />;
+  return <ExportPdfButton onExport={handleExport} label="Export summary" />;
 }

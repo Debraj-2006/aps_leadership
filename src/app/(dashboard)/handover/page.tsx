@@ -1,23 +1,15 @@
 import Link from "next/link";
+import { ArrowLeftRight, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/shared/empty-state";
+import { HANDOVER_STATUS, StatusPill } from "@/components/shared/status-pill";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
 import { NewHandoverDialog } from "@/components/handover/new-handover-dialog";
 import { getHandoverRecords } from "@/lib/actions/handover";
 import { getDesignations, getProfilesForSelect, getTenuresForSelect } from "@/lib/actions/leadership";
 import { getCurrentProfile } from "@/lib/auth";
 import { canApproveHandover } from "@/lib/roles";
-import { ArrowRight, ArrowLeftRight } from "lucide-react";
 import type { HandoverTask } from "@/lib/types";
-
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
-  pending: "outline",
-  in_progress: "secondary",
-  completed: "default",
-  approved: "default",
-};
 
 export default async function HandoverPage() {
   const { profile } = await getCurrentProfile();
@@ -33,60 +25,62 @@ export default async function HandoverPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Handover Management"
+        title="Handover"
         description="Transfer responsibilities, pending tasks and documents from outgoing to incoming committee members."
         actions={canManage ? <NewHandoverDialog tenures={tenures} designations={designations} profiles={profiles} /> : undefined}
       />
 
       {records.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6 text-sm text-muted-foreground">
-            No handover records yet.
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={ArrowLeftRight}
+          title="No handovers yet"
+          description={
+            canManage
+              ? "Use “New handover” when an outgoing member passes a role to their successor."
+              : "Handovers you're part of will appear here."
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {records.map((r) => {
             const tasks = (r.tasks ?? []) as HandoverTask[];
             const done = tasks.filter((t) => t.status === "completed").length;
             const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+            const status = HANDOVER_STATUS[r.status] ?? HANDOVER_STATUS.pending;
             return (
-              <Card key={r.id} className="flex flex-col">
-                <CardContent className="flex-1 space-y-3 pt-6">
-                  <div className="flex items-center justify-between gap-2">
-                    <Badge variant="secondary">{r.designation?.title ?? "Designation"}</Badge>
-                    <Badge variant={STATUS_VARIANT[r.status]} className="capitalize">
-                      {r.status.replace("_", " ")}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <ArrowLeftRight className="size-3.5 text-muted-foreground" />
-                    <span>{r.from_tenure?.academic_year}</span>
-                    <ArrowRight className="size-3.5 text-muted-foreground" />
-                    <span>{r.to_tenure?.academic_year}</span>
-                  </div>
-                  <div className="text-sm">
-                    <p>
-                      <span className="text-muted-foreground">Outgoing:</span>{" "}
-                      {r.outgoing_profile?.full_name}
+              <Link
+                key={r.id}
+                href={`/handover/${r.id}`}
+                className="group flex flex-col rounded-xl border bg-card p-5 transition-colors outline-none hover:border-primary/40 focus-visible:ring-3 focus-visible:ring-ring/40"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="type-eyebrow text-[10px] text-muted-foreground">
+                      {r.from_tenure?.academic_year ?? "—"} → {r.to_tenure?.academic_year ?? "—"}
                     </p>
-                    <p>
-                      <span className="text-muted-foreground">Incoming:</span>{" "}
-                      {r.incoming_profile?.full_name}
-                    </p>
+                    <h2 className="mt-1 truncate font-medium">{r.designation?.title ?? "Role"}</h2>
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Task progress</span>
-                      <span>{done}/{tasks.length}</span>
-                    </div>
-                    <Progress value={progress} />
+                  <StatusPill tone={status.tone}>{status.label}</StatusPill>
+                </div>
+
+                <div className="mt-4 flex items-center gap-2 text-sm">
+                  <span className="min-w-0 truncate">{r.outgoing_profile?.full_name ?? "—"}</span>
+                  <ArrowRight className="size-3.5 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 truncate font-medium">{r.incoming_profile?.full_name ?? "—"}</span>
+                </div>
+
+                <div className="mt-4 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Tasks done</span>
+                    <span className="type-readout">
+                      {done}/{tasks.length}
+                    </span>
                   </div>
-                  <Button nativeButton={false} render={<Link href={`/handover/${r.id}`} />} size="sm" variant="outline" className="w-full">
-                    View details
-                  </Button>
-                </CardContent>
-              </Card>
+                  <Progress value={progress} />
+                </div>
+
+                <p className="mt-4 text-xs font-medium text-primary group-hover:underline">Open handover</p>
+              </Link>
             );
           })}
         </div>

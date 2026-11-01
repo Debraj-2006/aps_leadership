@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-martian), ui-monospace, SFMono-Regular, Menlo, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +39,11 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-trace: var(--trace);
+  --color-trace-ink: var(--trace-ink);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -48,83 +53,141 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+  Palette, taken from the IEEE AP-S logo
+  IEEE Dark Blue  #002855  sidebar, ink (the logo's triangle)
+  IEEE Blue       #00629b  actions, links, focus ("IEEE" and the outer arc)
+  IEEE Orange     #ffa300  the "you are here" marker and highlights (the logo's dot)
+  AP-S Teal       #009ca6  charts (the "AP-S" lettering)
+  Graticule       #f3f6f9  app background
+  Hairline        #d9e2eb  borders and grid lines
+  Signal Slate    #56677b  secondary text
+*/
 :root {
-  --background: oklch(0.99 0.002 240);
-  --foreground: oklch(0.2 0.03 240);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.03 240);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.03 240);
-  --primary: oklch(0.42 0.11 240);
-  --primary-foreground: oklch(0.99 0.002 240);
-  --secondary: oklch(0.95 0.015 235);
-  --secondary-foreground: oklch(0.3 0.08 240);
-  --muted: oklch(0.96 0.008 235);
-  --muted-foreground: oklch(0.5 0.03 240);
-  --accent: oklch(0.78 0.14 75);
-  --accent-foreground: oklch(0.25 0.05 75);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.9 0.012 235);
-  --input: oklch(0.9 0.012 235);
-  --ring: oklch(0.6 0.1 240);
-  --chart-1: oklch(0.42 0.11 240);
-  --chart-2: oklch(0.6 0.13 210);
-  --chart-3: oklch(0.78 0.14 75);
-  --chart-4: oklch(0.55 0.12 160);
-  --chart-5: oklch(0.5 0.18 300);
-  --radius: 0.65rem;
-  --sidebar: oklch(0.2 0.045 240);
-  --sidebar-foreground: oklch(0.96 0.01 235);
-  --sidebar-primary: oklch(0.6 0.13 210);
-  --sidebar-primary-foreground: oklch(0.15 0.03 240);
-  --sidebar-accent: oklch(0.28 0.05 240);
-  --sidebar-accent-foreground: oklch(0.96 0.01 235);
-  --sidebar-border: oklch(0.3 0.05 240);
-  --sidebar-ring: oklch(0.6 0.13 210);
+  --ink: #002855;
+  --trace: #ffa300;
+  --trace-ink: #8a4f00;
+  --success: #1f8a55;
+  --warning: #b86e00;
+  --background: #f3f6f9;
+  --foreground: #0a1a2f;
+  --card: #ffffff;
+  --card-foreground: #0a1a2f;
+  --popover: #ffffff;
+  --popover-foreground: #0a1a2f;
+  --primary: #00629b;
+  --primary-foreground: #ffffff;
+  --secondary: #e8eef5;
+  --secondary-foreground: #12304d;
+  --muted: #edf2f6;
+  --muted-foreground: #56677b;
+  --accent: #e8eef5;
+  --accent-foreground: #0a1a2f;
+  --destructive: #c8322a;
+  --border: #d9e2eb;
+  --input: #c6d2de;
+  --ring: #00629b;
+  --chart-1: #00629b;
+  --chart-2: #ffa300;
+  --chart-3: #009ca6;
+  --chart-4: #5f9e1a;
+  --chart-5: #002855;
+  --radius: 0.5rem;
+  --sidebar: #002855;
+  --sidebar-foreground: #c9d6e4;
+  --sidebar-primary: #ffa300;
+  --sidebar-primary-foreground: #002855;
+  --sidebar-accent: #0b3a6c;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #13426f;
+  --sidebar-ring: #ffa300;
 }
 
 .dark {
-  --background: oklch(0.17 0.025 240);
-  --foreground: oklch(0.95 0.01 235);
-  --card: oklch(0.21 0.03 240);
-  --card-foreground: oklch(0.95 0.01 235);
-  --popover: oklch(0.21 0.03 240);
-  --popover-foreground: oklch(0.95 0.01 235);
-  --primary: oklch(0.65 0.12 210);
-  --primary-foreground: oklch(0.15 0.03 240);
-  --secondary: oklch(0.27 0.035 240);
-  --secondary-foreground: oklch(0.92 0.01 235);
-  --muted: oklch(0.27 0.035 240);
-  --muted-foreground: oklch(0.65 0.02 235);
-  --accent: oklch(0.72 0.13 75);
-  --accent-foreground: oklch(0.2 0.04 75);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.6 0.1 210);
-  --chart-1: oklch(0.65 0.12 210);
-  --chart-2: oklch(0.72 0.13 75);
-  --chart-3: oklch(0.6 0.12 160);
-  --chart-4: oklch(0.6 0.16 300);
-  --chart-5: oklch(0.75 0.1 30);
-  --sidebar: oklch(0.14 0.025 240);
-  --sidebar-foreground: oklch(0.93 0.01 235);
-  --sidebar-primary: oklch(0.65 0.12 210);
-  --sidebar-primary-foreground: oklch(0.15 0.03 240);
-  --sidebar-accent: oklch(0.24 0.035 240);
-  --sidebar-accent-foreground: oklch(0.93 0.01 235);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.6 0.1 210);
+  --ink: #002855;
+  --trace: #ffa300;
+  --trace-ink: #ffc266;
+  --success: #45c08a;
+  --warning: #f0a83c;
+  --background: #08131f;
+  --foreground: #e6edf4;
+  --card: #0e1d30;
+  --card-foreground: #e6edf4;
+  --popover: #0e1d30;
+  --popover-foreground: #e6edf4;
+  --primary: #4fb0e6;
+  --primary-foreground: #04121f;
+  --secondary: #16283e;
+  --secondary-foreground: #dce6f0;
+  --muted: #16283e;
+  --muted-foreground: #93a5b8;
+  --accent: #16283e;
+  --accent-foreground: #e6edf4;
+  --destructive: #f2665d;
+  --border: rgb(255 255 255 / 11%);
+  --input: rgb(255 255 255 / 16%);
+  --ring: #4fb0e6;
+  --chart-1: #4fb0e6;
+  --chart-2: #ffa300;
+  --chart-3: #2fc4cc;
+  --chart-4: #8fd14f;
+  --chart-5: #9fb7d6;
+  --sidebar: #001a38;
+  --sidebar-foreground: #c9d6e4;
+  --sidebar-primary: #ffa300;
+  --sidebar-primary-foreground: #002855;
+  --sidebar-accent: #0b2f58;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 9%);
+  --sidebar-ring: #ffa300;
+}
+
+/* Wide Archivo: page titles, big numbers, the wordmark. */
+@utility type-display {
+  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  font-variation-settings: "wdth" 125;
+}
+
+/* Instrument-panel micro label: section names, column heads, readout labels. */
+@utility type-eyebrow {
+  font-family: var(--font-martian), ui-monospace, monospace;
+  font-variation-settings: "wdth" 87.5;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Numbers that should line up: points, ranks, dates, membership numbers. */
+@utility type-readout {
+  font-family: var(--font-martian), ui-monospace, monospace;
+  font-variation-settings: "wdth" 87.5;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Faint graph-paper grid for empty plots and empty states. */
+@utility graticule {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply font-sans;
+    text-rendering: optimizeLegibility;
+  }
   body {
     @apply bg-background text-foreground;
   }
-  html {
-    @apply font-sans;
+  ::selection {
+    background-color: color-mix(in srgb, var(--trace) 55%, transparent);
+    color: var(--ink);
   }
 }

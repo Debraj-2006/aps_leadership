@@ -41,7 +41,7 @@ export function DesignationManager({ designations }: { designations: Designation
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Manage Designations</DialogTitle>
+          <DialogTitle>Manage designations</DialogTitle>
           <DialogDescription>
             Define the executive positions available across all tenures.
           </DialogDescription>

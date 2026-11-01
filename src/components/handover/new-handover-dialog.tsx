@@ -54,11 +54,11 @@ export function NewHandoverDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" />}>
-        <Plus className="size-4" /> New Handover
+        <Plus className="size-4" /> New handover
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Create Handover Record</DialogTitle>
+          <DialogTitle>New handover</DialogTitle>
           <DialogDescription>
             Transfer a designation&apos;s responsibilities from an outgoing to an incoming member.
           </DialogDescription>

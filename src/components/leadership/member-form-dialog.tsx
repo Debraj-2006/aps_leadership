@@ -65,13 +65,13 @@ export function MemberFormDialog({ tenureId, designations, profiles, editing }: 
           <Pencil className="size-4" />
         ) : (
           <>
-            <Plus className="size-4" /> Add Member
+            <Plus className="size-4" /> Add member
           </>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit Committee Member" : "Add Committee Member"}</DialogTitle>
+          <DialogTitle>{editing ? "Edit committee member" : "Add committee member"}</DialogTitle>
           <DialogDescription>
             {editing
               ? "Update designation or transition status for this member."

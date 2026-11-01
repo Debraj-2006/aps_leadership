@@ -3,24 +3,22 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { format, isPast, parseISO } from "date-fns";
-import { CalendarDays, CheckCircle2, Circle, Loader2, PlayCircle, RotateCcw, Trash2 } from "lucide-react";
-import { cn } from "cn";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { CalendarDays, CheckCircle2, Loader2, PlayCircle, RotateCcw, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { deleteTask, updateTaskStatus } from "@/lib/actions/tasks";
 import type { MemberTask, TaskStatus } from "@/lib/types";
 
-const PRIORITY_STYLE: Record<string, string> = {
-  high: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300",
-  medium: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
-  low: "bg-muted text-muted-foreground",
+const PRIORITY_EDGE: Record<string, string> = {
+  high: "before:bg-destructive",
+  medium: "before:bg-warning",
+  low: "before:bg-muted-foreground/30",
 };
 
-const STATUS_LABEL: Record<TaskStatus, string> = {
-  pending: "To do",
-  in_progress: "In progress",
-  completed: "Done",
+const PRIORITY_LABEL: Record<string, string> = {
+  high: "High",
+  medium: "Medium",
+  low: "Low",
 };
 
 export function TaskCard({
@@ -42,7 +40,7 @@ export function TaskCard({
     startTransition(async () => {
       const result = await updateTaskStatus(task.id, status);
       if (result?.error) toast.error(result.error);
-      else toast.success(status === "completed" ? "Task marked as done." : "Task updated.");
+      else toast.success(status === "completed" ? "Task marked as done." : status === "in_progress" ? "Task started." : "Task updated.");
     });
   }
 
@@ -55,46 +53,46 @@ export function TaskCard({
     });
   }
 
-  const StatusIcon = done ? CheckCircle2 : task.status === "in_progress" ? PlayCircle : Circle;
+  const showActions = (isAssignee && !done) || (done && (isAssignee || canManage)) || canManage;
 
   return (
-    <Card className={cn(done && "opacity-75")}>
-      <CardContent className="space-y-3 pt-6">
-        <div className="flex items-start gap-3">
-          <StatusIcon
-            className={cn(
-              "mt-0.5 size-5 shrink-0",
-              done ? "text-emerald-600" : task.status === "in_progress" ? "text-sky-600" : "text-muted-foreground"
-            )}
-          />
-          <div className="min-w-0 flex-1">
-            <p className={cn("font-medium leading-tight", done && "line-through")}>{task.title}</p>
-            {task.description && <p className="mt-1 text-sm text-muted-foreground">{task.description}</p>}
-          </div>
-        </div>
+    <article
+      className={cn(
+        "relative overflow-hidden rounded-lg border bg-card p-4 pl-5 shadow-[0_1px_0_0_rgb(10_26_47/0.03)]",
+        "before:absolute before:inset-y-0 before:left-0 before:w-1",
+        PRIORITY_EDGE[task.priority]
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className={cn("text-sm leading-snug font-medium", done && "text-muted-foreground line-through")}>{task.title}</p>
+        <span className="type-eyebrow shrink-0 text-[10px] text-muted-foreground">{PRIORITY_LABEL[task.priority]}</span>
+      </div>
+      {task.description && <p className="mt-1.5 text-sm text-muted-foreground">{task.description}</p>}
 
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className={cn("rounded-full px-2 py-0.5 font-medium capitalize", PRIORITY_STYLE[task.priority])}>
-            {task.priority}
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        {task.due_date && (
+          <span className={cn("type-readout flex items-center gap-1", overdue && "font-semibold text-destructive")}>
+            <CalendarDays className="size-3.5" />
+            {overdue ? "Overdue " : ""}
+            {format(parseISO(task.due_date), "dd MMM")}
           </span>
-          <Badge variant="outline">{STATUS_LABEL[task.status]}</Badge>
-          {task.due_date && (
-            <span className={cn("flex items-center gap-1", overdue ? "font-medium text-destructive" : "text-muted-foreground")}>
-              <CalendarDays className="size-3.5" />
-              {overdue ? "Overdue · " : "Due "}
-              {format(parseISO(task.due_date), "dd MMM yyyy")}
-            </span>
-          )}
-          {task.event?.title && <span className="text-muted-foreground">· {task.event.title}</span>}
-        </div>
+        )}
+        {task.event?.title && <span className="truncate">{task.event.title}</span>}
+      </div>
 
-        <p className="text-xs text-muted-foreground">
-          {showAssignee && task.assignee ? <>For <span className="font-medium text-foreground">{task.assignee.full_name}</span> · </> : null}
-          {task.assigner ? <>Assigned by {task.assigner.full_name}</> : "Assigned by a former member"}
-        </p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        {showAssignee && task.assignee ? (
+          <>
+            For <span className="font-medium text-foreground">{task.assignee.full_name}</span>
+            {" · "}
+          </>
+        ) : null}
+        {task.assigner ? <>from {task.assigner.full_name}</> : "from a former member"}
+      </p>
 
-        <div className="flex flex-wrap items-center justify-end gap-2 border-t pt-3">
-          {pending && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+      {showActions && (
+        <div className="mt-3 flex flex-wrap items-center justify-end gap-1.5 border-t pt-3">
+          {pending && <Loader2 className="mr-auto size-4 animate-spin text-muted-foreground" />}
           {isAssignee && task.status === "pending" && (
             <Button size="sm" variant="outline" disabled={pending} onClick={() => setStatus("in_progress")}>
               <PlayCircle className="size-4" /> Start
@@ -111,12 +109,12 @@ export function TaskCard({
             </Button>
           )}
           {canManage && (
-            <Button size="icon" variant="ghost" disabled={pending} onClick={handleDelete} aria-label="Delete task">
+            <Button size="icon-sm" variant="ghost" disabled={pending} onClick={handleDelete} aria-label="Delete task">
               <Trash2 className="size-4 text-destructive" />
             </Button>
           )}
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </article>
   );
 }

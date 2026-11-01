@@ -50,11 +50,11 @@ export function LinkDocumentDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" variant="outline" />}>
-        <Link2 className="size-4" /> Link Document
+        <Link2 className="size-4" /> Link document
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Link a Document</DialogTitle>
+          <DialogTitle>Link a document</DialogTitle>
           <DialogDescription>Attach an existing document to this handover record.</DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">

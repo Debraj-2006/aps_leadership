@@ -22,36 +22,71 @@ export interface NavItem {
   roles?: UserRole[];
 }
 
-export const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Leadership", href: "/leadership", icon: Users },
-  { label: "Tenure", href: "/tenure", icon: CalendarRange },
-  { label: "Events", href: "/events", icon: CalendarDays },
-  { label: "Tasks", href: "/tasks", icon: ListChecks },
-  { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
-  { label: "Documents", href: "/documents", icon: FileText },
-  { label: "Handover", href: "/handover", icon: ArrowLeftRight },
-  { label: "Archive", href: "/archive", icon: Archive },
+export interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const ADMIN: UserRole[] = ["super_admin", "faculty_advisor", "executive"];
+
+export const NAV_GROUPS: NavGroup[] = [
+  { label: "Overview", items: [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }] },
   {
-    label: "User Management",
-    href: "/admin/users",
-    icon: UserCog,
-    roles: ["super_admin", "faculty_advisor", "executive"],
+    label: "Committee",
+    items: [
+      { label: "Leadership", href: "/leadership", icon: Users },
+      { label: "Tenure", href: "/tenure", icon: CalendarRange },
+      { label: "Handover", href: "/handover", icon: ArrowLeftRight },
+    ],
   },
   {
-    label: "Activity Log",
-    href: "/admin/activity",
-    icon: ScrollText,
-    roles: ["super_admin", "faculty_advisor", "executive"],
+    label: "Chapter",
+    items: [
+      { label: "Events", href: "/events", icon: CalendarDays },
+      { label: "Documents", href: "/documents", icon: FileText },
+      { label: "Archive", href: "/archive", icon: Archive },
+    ],
+  },
+  {
+    label: "Contribution",
+    items: [
+      { label: "Tasks", href: "/tasks", icon: ListChecks },
+      { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
+    ],
+  },
+  {
+    label: "Admin",
+    items: [
+      { label: "User management", href: "/admin/users", icon: UserCog, roles: ADMIN },
+      { label: "Activity log", href: "/admin/activity", icon: ScrollText, roles: ADMIN },
+    ],
   },
 ];
 
-const WORKING_NAV_ITEMS: NavItem[] = [
-  { label: "My Tasks", href: "/tasks", icon: ListChecks },
-  { label: "My Points & Badges", href: "/my-recognition", icon: Award },
+const WORKING_GROUPS: NavGroup[] = [
+  {
+    label: "Contribution",
+    items: [
+      { label: "My tasks", href: "/tasks", icon: ListChecks },
+      { label: "My points & badges", href: "/my-recognition", icon: Award },
+    ],
+  },
 ];
 
-export function visibleNavItems(role: UserRole): NavItem[] {
-  if (role === "working") return WORKING_NAV_ITEMS;
-  return NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(role));
+export function visibleNavGroups(role: UserRole): NavGroup[] {
+  const groups = role === "working" ? WORKING_GROUPS : NAV_GROUPS;
+  return groups
+    .map((g) => ({ ...g, items: g.items.filter((item) => !item.roles || item.roles.includes(role)) }))
+    .filter((g) => g.items.length > 0);
+}
+
+export function isActivePath(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
+export function sectionForPath(pathname: string): string | undefined {
+  for (const group of [...NAV_GROUPS, ...WORKING_GROUPS]) {
+    if (group.items.some((item) => isActivePath(pathname, item.href))) return group.label;
+  }
+  return undefined;
 }

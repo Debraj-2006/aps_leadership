@@ -48,7 +48,7 @@ export function CreateUserDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create User Account</DialogTitle>
+          <DialogTitle>Create user account</DialogTitle>
           <DialogDescription>
             A login will be created with the default password{" "}
             <code className="rounded bg-muted px-1 py-0.5">IEEEAPS@2025</code>.

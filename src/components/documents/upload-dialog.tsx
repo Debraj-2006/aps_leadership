@@ -43,11 +43,11 @@ export function UploadDialog({ tenures }: { tenures: Pick<Tenure, "id" | "academ
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" />}>
-        <Upload className="size-4" /> Upload Document
+        <Upload className="size-4" /> Upload document
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Upload Document</DialogTitle>
+          <DialogTitle>Upload document</DialogTitle>
           <DialogDescription>
             Event reports, meeting minutes, certificates, financial reports and other official files.
           </DialogDescription>

@@ -1,6 +1,8 @@
+import { format } from "date-fns";
+import { FileText } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UploadDialog } from "@/components/documents/upload-dialog";
 import { DocumentsFilterBar } from "@/components/documents/documents-filter-bar";
@@ -9,14 +11,12 @@ import { getDocuments } from "@/lib/actions/documents";
 import { getTenuresForSelect } from "@/lib/actions/leadership";
 import { getCurrentProfile } from "@/lib/auth";
 import { isAdminRole } from "@/lib/roles";
-import { format } from "date-fns";
-import { FileText } from "lucide-react";
 
 const CATEGORY_LABEL: Record<string, string> = {
-  event_report: "Event Report",
-  meeting_minutes: "Meeting Minutes",
+  event_report: "Event report",
+  meeting_minutes: "Meeting minutes",
   certificate: "Certificate",
-  financial_report: "Financial Report",
+  financial_report: "Financial report",
   handover: "Handover",
   other: "Other",
 };
@@ -35,14 +35,15 @@ export default async function DocumentsPage({
 }) {
   const { profile } = await getCurrentProfile();
   const params = await searchParams;
+  const filtered = Boolean(params.search || (params.category && params.category !== "all") || (params.tenureId && params.tenureId !== "all"));
 
   const [documents, tenures] = await Promise.all([getDocuments(params), getTenuresForSelect()]);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Document Management"
-        description="Event reports, meeting minutes, certificates and financial records — centrally stored."
+        title="Documents"
+        description="Event reports, meeting minutes, certificates and financial records, stored in one place."
         actions={
           <>
             <DocumentsFilterBar tenures={tenures} />
@@ -51,61 +52,53 @@ export default async function DocumentsPage({
         }
       />
 
-      <Card>
-        <CardContent className="pt-6">
-          {documents.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No documents match the current filters.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Document</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Tenure</TableHead>
-                    <TableHead>Uploaded by</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {documents.map((d) => (
-                    <TableRow key={d.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <FileText className="size-4 text-primary" />
-                          <span className="font-medium">{d.title}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{CATEGORY_LABEL[d.category]}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {d.tenure?.academic_year ?? "—"}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {d.uploader?.full_name ?? "—"}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{formatSize(d.file_size)}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {format(new Date(d.created_at), "dd MMM yyyy")}
-                      </TableCell>
-                      <TableCell>
-                        <DocumentRowActions
-                          id={d.id}
-                          filePath={d.file_path}
-                          canDelete={isAdminRole(profile.role) || d.uploaded_by === profile.id}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {documents.length === 0 ? (
+        <EmptyState
+          icon={FileText}
+          title={filtered ? "No documents match these filters" : "No documents yet"}
+          description={filtered ? "Try a different category or tenure." : "Use “Upload document” to add the first report or minutes."}
+        />
+      ) : (
+        <Card className="py-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="pl-5">Document</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Tenure</TableHead>
+                <TableHead>Uploaded by</TableHead>
+                <TableHead className="text-right">Size</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="pr-5 text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {documents.map((d) => (
+                <TableRow key={d.id}>
+                  <TableCell className="pl-5">
+                    <div className="flex items-center gap-2.5">
+                      <FileText className="size-4 shrink-0 text-primary" />
+                      <span className="font-medium">{d.title}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{CATEGORY_LABEL[d.category]}</TableCell>
+                  <TableCell className="type-readout text-xs text-muted-foreground">{d.tenure?.academic_year ?? "—"}</TableCell>
+                  <TableCell className="text-muted-foreground">{d.uploader?.full_name ?? "—"}</TableCell>
+                  <TableCell className="type-readout text-right text-xs text-muted-foreground">{formatSize(d.file_size)}</TableCell>
+                  <TableCell className="type-readout text-xs text-muted-foreground">{format(new Date(d.created_at), "dd MMM yyyy")}</TableCell>
+                  <TableCell className="pr-5">
+                    <DocumentRowActions
+                      id={d.id}
+                      filePath={d.file_path}
+                      canDelete={isAdminRole(profile.role) || d.uploaded_by === profile.id}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+      )}
     </div>
   );
 }

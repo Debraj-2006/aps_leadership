@@ -1,12 +1,14 @@
+import { redirect } from "next/navigation";
+import { format } from "date-fns";
+import { ScrollText } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { getRecentActivity } from "@/lib/actions/activity";
 import { getCurrentProfile } from "@/lib/auth";
 import { isAdminRole } from "@/lib/roles";
-import { format } from "date-fns";
-import { redirect } from "next/navigation";
+import { initials } from "@/lib/format";
 
 export default async function ActivityLogPage() {
   const { profile } = await getCurrentProfile();
@@ -16,45 +18,35 @@ export default async function ActivityLogPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Activity Log"
-        description="A full audit trail of actions taken across the chapter's administration platform."
-      />
-      <Card>
-        <CardContent className="divide-y pt-6">
-          {activity.length === 0 && (
-            <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
-          )}
-          {activity.map((log) => {
-            const name = log.actor?.full_name ?? "System";
-            const initials = name
-              .split(" ")
-              .map((p: string) => p[0])
-              .slice(0, 2)
-              .join("")
-              .toUpperCase();
-            return (
-              <div key={log.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                <Avatar className="size-8">
-                  <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <p className="text-sm">
-                    <span className="font-medium">{name}</span>{" "}
-                    <span className="text-muted-foreground">{log.action}</span>
+      <PageHeader title="Activity log" description="The latest 50 actions taken across the chapter hub, newest first." />
+
+      {activity.length === 0 ? (
+        <EmptyState icon={ScrollText} title="No activity recorded yet" />
+      ) : (
+        <Card className="py-0">
+          <ul className="divide-y">
+            {activity.map((log) => {
+              const name = log.actor?.full_name ?? "System";
+              return (
+                <li key={log.id} className="flex items-center gap-3 px-5 py-3">
+                  <Avatar className="size-8">
+                    <AvatarFallback className="text-[11px] font-medium">{initials(name)}</AvatarFallback>
+                  </Avatar>
+                  <p className="min-w-0 flex-1 text-sm">
+                    <span className="font-medium">{name}</span> <span className="text-muted-foreground">{log.action}</span>
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {format(new Date(log.created_at), "dd MMM yyyy, hh:mm a")}
-                  </p>
-                </div>
-                <Badge variant="outline" className="shrink-0 capitalize">
-                  {log.entity_type.replace("_", " ")}
-                </Badge>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+                  <span className="type-eyebrow hidden shrink-0 text-[10px] text-muted-foreground sm:inline">
+                    {log.entity_type.replace("_", " ")}
+                  </span>
+                  <time className="type-readout shrink-0 text-right text-xs text-muted-foreground sm:w-36" dateTime={log.created_at}>
+                    {format(new Date(log.created_at), "dd MMM yyyy, HH:mm")}
+                  </time>
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+      )}
     </div>
   );
 }

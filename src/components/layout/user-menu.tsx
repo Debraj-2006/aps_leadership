@@ -50,6 +50,7 @@ export function UserMenu({ profile }: { profile: Profile }) {
         <DropdownMenuSeparator />
         <form action={logoutAction}>
           <DropdownMenuItem
+            nativeButton
             render={<button type="submit" className="flex w-full items-center gap-2 text-destructive" />}
           >
             <LogOut className="size-4" />

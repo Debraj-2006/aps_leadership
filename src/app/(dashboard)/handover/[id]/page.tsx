@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileText, ListChecks } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/shared/empty-state";
+import { HANDOVER_STATUS, StatusPill } from "@/components/shared/status-pill";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AddTaskDialog } from "@/components/handover/add-task-dialog";
 import { TaskItem } from "@/components/handover/task-item";
@@ -18,13 +18,6 @@ import { getCurrentProfile } from "@/lib/auth";
 import { canApproveHandover } from "@/lib/roles";
 import type { HandoverTask } from "@/lib/types";
 
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
-  pending: "outline",
-  in_progress: "secondary",
-  completed: "default",
-  approved: "default",
-};
-
 export default async function HandoverDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { profile } = await getCurrentProfile();
@@ -37,6 +30,7 @@ export default async function HandoverDetailPage({ params }: { params: Promise<{
   const tasks: HandoverTask[] = record.tasks ?? [];
   const done = tasks.filter((t) => t.status === "completed").length;
   const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+  const status = HANDOVER_STATUS[record.status] ?? HANDOVER_STATUS.pending;
 
   const linkedDocs = (record.handover_documents ?? []) as {
     id: string;
@@ -47,13 +41,16 @@ export default async function HandoverDetailPage({ params }: { params: Promise<{
 
   return (
     <div className="space-y-6">
-      <Button nativeButton={false} render={<Link href="/handover" />} variant="ghost" size="sm" className="-ml-2">
-        <ArrowLeft className="size-4" /> Back to Handover
-      </Button>
+      <Link
+        href="/handover"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" /> All handovers
+      </Link>
 
       <PageHeader
         title={record.designation?.title ?? "Handover"}
-        description="Structured transfer of responsibilities, tasks and documents."
+        description={`${record.from_tenure?.academic_year ?? "—"} → ${record.to_tenure?.academic_year ?? "—"} · structured transfer of responsibilities, tasks and documents.`}
         actions={
           <>
             <HandoverStatusActions id={record.id} status={record.status} canApprove={canApprove} />
@@ -70,52 +67,49 @@ export default async function HandoverDetailPage({ params }: { params: Promise<{
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Transition Overview</CardTitle>
+            <CardTitle>Overview</CardTitle>
+            <CardAction>
+              <StatusPill tone={status.tone}>{status.label}</StatusPill>
+            </CardAction>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex items-center gap-2">
-              <Badge variant={STATUS_VARIANT[record.status]} className="capitalize">
-                {record.status.replace("_", " ")}
-              </Badge>
+          <CardContent className="space-y-4 text-sm">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-2">
+              <div className="min-w-0">
+                <p className="type-eyebrow text-[10px] text-muted-foreground">Outgoing</p>
+                <p className="mt-1 truncate font-medium">{record.outgoing_profile?.full_name ?? "—"}</p>
+                <p className="truncate text-xs text-muted-foreground">{record.outgoing_profile?.email}</p>
+              </div>
+              <ArrowRight className="mt-5 size-4 text-muted-foreground" />
+              <div className="min-w-0">
+                <p className="type-eyebrow text-[10px] text-muted-foreground">Incoming</p>
+                <p className="mt-1 truncate font-medium">{record.incoming_profile?.full_name ?? "—"}</p>
+                <p className="truncate text-xs text-muted-foreground">{record.incoming_profile?.email}</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <span>{record.from_tenure?.academic_year}</span>
-              <ArrowRight className="size-3.5" />
-              <span>{record.to_tenure?.academic_year}</span>
-            </div>
-            <p>
-              <span className="text-muted-foreground">Outgoing:</span> {record.outgoing_profile?.full_name}
-              <br />
-              <span className="text-xs text-muted-foreground">{record.outgoing_profile?.email}</span>
-            </p>
-            <p>
-              <span className="text-muted-foreground">Incoming:</span> {record.incoming_profile?.full_name}
-              <br />
-              <span className="text-xs text-muted-foreground">{record.incoming_profile?.email}</span>
-            </p>
-            {record.notes && (
-              <div className="rounded-md bg-muted/50 p-3 text-sm">{record.notes}</div>
-            )}
+            {record.notes && <div className="rounded-md bg-muted/60 p-3 text-sm">{record.notes}</div>}
           </CardContent>
         </Card>
 
         <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle className="text-base">Handover Tasks</CardTitle>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {done}/{tasks.length} completed
-              </p>
-            </div>
-            <AddTaskDialog handoverRecordId={record.id} />
+          <CardHeader>
+            <CardTitle>Handover tasks</CardTitle>
+            <CardDescription>
+              <span className="type-readout">
+                {done}/{tasks.length}
+              </span>{" "}
+              completed
+            </CardDescription>
+            <CardAction>
+              <AddTaskDialog handoverRecordId={record.id} />
+            </CardAction>
           </CardHeader>
           <CardContent className="space-y-3">
             <Progress value={progress} />
             {tasks.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No tasks added yet.</p>
+              <EmptyState compact icon={ListChecks} title="No tasks added yet" description="Add what the incoming member needs to pick up." />
             ) : (
               tasks.map((t) => <TaskItem key={t.id} task={t} handoverRecordId={record.id} />)
             )}
@@ -124,21 +118,23 @@ export default async function HandoverDetailPage({ params }: { params: Promise<{
       </div>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">Linked Documents</CardTitle>
-          <LinkDocumentDialog handoverRecordId={record.id} availableDocuments={availableDocuments} />
+        <CardHeader>
+          <CardTitle>Linked documents</CardTitle>
+          <CardAction>
+            <LinkDocumentDialog handoverRecordId={record.id} availableDocuments={availableDocuments} />
+          </CardAction>
         </CardHeader>
         <CardContent>
           {linkedDocs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No documents linked yet.</p>
+            <EmptyState compact icon={FileText} title="No documents linked" description="Link reports, minutes or files the incoming member should read." />
           ) : (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {linkedDocs.map((ld) =>
                 ld.document ? (
-                  <div key={ld.id} className="flex items-center justify-between rounded-md border p-2.5">
-                    <span className="flex items-center gap-2 text-sm">
-                      <FileText className="size-4 text-primary" />
-                      {ld.document.title}
+                  <div key={ld.id} className="flex items-center justify-between gap-2 rounded-lg border p-2.5">
+                    <span className="flex min-w-0 items-center gap-2 text-sm">
+                      <FileText className="size-4 shrink-0 text-primary" />
+                      <span className="truncate">{ld.document.title}</span>
                     </span>
                     <UnlinkDocumentButton id={ld.id} handoverRecordId={record.id} />
                   </div>

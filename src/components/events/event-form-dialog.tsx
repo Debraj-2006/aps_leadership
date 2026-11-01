@@ -64,13 +64,13 @@ export function EventFormDialog({
           <Pencil className="size-4" />
         ) : (
           <>
-            <Plus className="size-4" /> New Event
+            <Plus className="size-4" /> New event
           </>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit Event" : "Record New Event"}</DialogTitle>
+          <DialogTitle>{editing ? "Edit event" : "New event"}</DialogTitle>
           <DialogDescription>
             Technical talks, workshops, webinars, competitions and other chapter activities.
           </DialogDescription>

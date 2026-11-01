@@ -1,6 +1,9 @@
+import { format, parseISO } from "date-fns";
+import { CalendarRange, Users } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/shared/empty-state";
+import { StatusPill } from "@/components/shared/status-pill";
+import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TenureFilter } from "@/components/leadership/tenure-filter";
@@ -16,8 +19,8 @@ import {
 } from "@/lib/actions/leadership";
 import { getCurrentProfile } from "@/lib/auth";
 import { canManageLeadership, ROLE_LABELS } from "@/lib/roles";
+import { initials } from "@/lib/format";
 import type { UserRole } from "@/lib/types";
-import { format } from "date-fns";
 
 export default async function LeadershipPage({
   searchParams,
@@ -41,13 +44,11 @@ export default async function LeadershipPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Leadership Management"
-        description="Executive committee roster and designations for each tenure."
+        title="Leadership"
+        description="Committee roster and designations for each tenure."
         actions={
           <>
-            {tenures.length > 0 && (
-              <TenureFilter tenures={tenures} current={selectedTenureId ?? ""} />
-            )}
+            {tenures.length > 0 && <TenureFilter tenures={tenures} current={selectedTenureId ?? ""} />}
             {members.length > 0 && (
               <ExportCommitteeButton
                 tenureLabel={tenures.find((t) => t.id === selectedTenureId)?.academic_year ?? "committee"}
@@ -62,84 +63,71 @@ export default async function LeadershipPage({
         }
       />
 
-      <Card>
-        <CardContent className="pt-6">
-          {!selectedTenureId ? (
-            <p className="text-sm text-muted-foreground">
-              No tenure exists yet. Create one in Tenure Management first.
-            </p>
-          ) : members.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No committee members assigned yet.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Member</TableHead>
-                    <TableHead>Designation</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Status</TableHead>
-                    {canManage && <TableHead className="text-right">Actions</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {members.map((m) => {
-                    const initials = (m.profile?.full_name ?? "?")
-                      .split(" ")
-                      .map((p: string) => p[0])
-                      .slice(0, 2)
-                      .join("")
-                      .toUpperCase();
-                    return (
-                      <TableRow key={m.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="size-8">
-                              <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="text-sm font-medium leading-tight">{m.profile?.full_name}</p>
-                              <p className="text-xs text-muted-foreground">{m.profile?.email}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{m.custom_title || m.designation?.title}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{ROLE_LABELS[(m.profile?.role as UserRole) ?? "working"]}</Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {m.joined_at ? format(new Date(m.joined_at), "dd MMM yyyy") : "—"}
-                        </TableCell>
-                        <TableCell>
-                          {m.is_outgoing ? (
-                            <Badge variant="secondary">Outgoing</Badge>
-                          ) : (
-                            <Badge>Active</Badge>
-                          )}
-                        </TableCell>
-                        {canManage && (
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-1">
-                              <MemberFormDialog
-                                tenureId={selectedTenureId}
-                                designations={designations}
-                                profiles={profiles}
-                                editing={m}
-                              />
-                              <DeleteMemberButton id={m.id} />
-                            </div>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {!selectedTenureId ? (
+        <EmptyState
+          icon={CalendarRange}
+          title="No tenure yet"
+          description="Create a tenure on the Tenure page first, then add its committee here."
+        />
+      ) : members.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No committee members for this tenure"
+          description={canManage ? "Use “Add member” to build the roster." : "The roster will appear once members are added."}
+        />
+      ) : (
+        <Card className="py-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="pl-5">Member</TableHead>
+                <TableHead>Designation</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Joined</TableHead>
+                <TableHead>Status</TableHead>
+                {canManage && <TableHead className="pr-5 text-right">Actions</TableHead>}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {members.map((m) => (
+                <TableRow key={m.id}>
+                  <TableCell className="pl-5">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="size-8">
+                        <AvatarFallback className="text-[11px] font-medium">{initials(m.profile?.full_name)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium leading-tight">{m.profile?.full_name}</p>
+                        <p className="text-xs text-muted-foreground">{m.profile?.email}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">{m.custom_title || m.designation?.title}</TableCell>
+                  <TableCell className="text-muted-foreground">{ROLE_LABELS[(m.profile?.role as UserRole) ?? "working"]}</TableCell>
+                  <TableCell className="type-readout text-xs text-muted-foreground">
+                    {m.joined_at ? format(parseISO(m.joined_at), "dd MMM yyyy") : "—"}
+                  </TableCell>
+                  <TableCell>
+                    {m.is_outgoing ? (
+                      <StatusPill tone="warning">Outgoing</StatusPill>
+                    ) : (
+                      <StatusPill tone="success">Serving</StatusPill>
+                    )}
+                  </TableCell>
+                  {canManage && (
+                    <TableCell className="pr-5 text-right">
+                      <div className="flex justify-end gap-1">
+                        <MemberFormDialog tenureId={selectedTenureId} designations={designations} profiles={profiles} editing={m} />
+                        <DeleteMemberButton id={m.id} />
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+      )}
     </div>
   );
 }

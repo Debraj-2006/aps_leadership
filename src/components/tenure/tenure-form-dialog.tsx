@@ -48,13 +48,13 @@ export function TenureFormDialog({ editing }: { editing?: Tenure }) {
           <Pencil className="size-4" />
         ) : (
           <>
-            <Plus className="size-4" /> New Tenure
+            <Plus className="size-4" /> New tenure
           </>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{editing ? "Edit Tenure" : "Create Tenure"}</DialogTitle>
+          <DialogTitle>{editing ? "Edit tenure" : "New tenure"}</DialogTitle>
           <DialogDescription>
             Define the academic-year committee period, status, and highlights.
           </DialogDescription>

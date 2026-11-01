@@ -43,11 +43,11 @@ export function AddTaskDialog({ handoverRecordId }: { handoverRecordId: string }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm" variant="outline" />}>
-        <Plus className="size-4" /> Add Task
+        <Plus className="size-4" /> Add task
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Handover Task</DialogTitle>
+          <DialogTitle>Add handover task</DialogTitle>
           <DialogDescription>Define a responsibility or action item to transfer.</DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">

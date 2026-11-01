@@ -1,36 +1,76 @@
 import Link from "next/link";
-import {
-  Users,
-  CalendarRange,
-  CalendarCheck2,
-  ListTodo,
-  FileText,
-  ArrowLeftRight,
-} from "lucide-react";
-import { PageHeader } from "@/components/shared/page-header";
-import { StatCard } from "@/components/dashboard/stat-card";
+import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { CalendarDays, Trophy, Users } from "lucide-react";
+import { PropagationArt } from "@/components/brand/propagation-art";
+import type { Readout } from "@/components/shared/readout-strip";
+import { EmptyState } from "@/components/shared/empty-state";
+import { DateBlock } from "@/components/shared/date-block";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { MeterBar } from "@/components/recognition/meter-bar";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getDashboardStats, getUpcomingDeadlines, getUpcomingEvents } from "@/lib/actions/dashboard";
 import { getRecentActivity } from "@/lib/actions/activity";
+import { getLeaderboard } from "@/lib/actions/recognition";
+import { getAllTasks, getTasksAssignedToMe } from "@/lib/actions/tasks";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { ROLE_LABELS } from "@/lib/roles";
-import { format } from "date-fns";
+import { isAdminRole, ROLE_LABELS } from "@/lib/roles";
+import { initials, shortAcademicYear } from "@/lib/format";
 import type { ActivityLog, HandoverTask, Profile } from "@/lib/types";
+
+const EVENT_TYPE_LABEL: Record<string, string> = {
+  technical_talk: "Technical talk",
+  workshop: "Workshop",
+  webinar: "Webinar",
+  competition: "Competition",
+  seminar: "Seminar",
+  social: "Social",
+  other: "Event",
+};
+
+function relativeDay(date: Date) {
+  const days = differenceInCalendarDays(date, new Date());
+  if (days === 0) return "Today";
+  if (days === 1) return "Tomorrow";
+  return `in ${days} days`;
+}
+
+function HeroReadouts({ items }: { items: Readout[] }) {
+  return (
+    <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/12 md:grid-cols-3 xl:grid-cols-6">
+      {items.map((item) => (
+        <div key={item.label} className="min-w-0 bg-ink/85 px-4 py-3.5 backdrop-blur-sm">
+          <dt className="type-eyebrow truncate text-[10px] text-white/55">{item.label}</dt>
+          <dd className="type-display mt-1.5 truncate text-2xl leading-none font-bold tabular-nums">{item.value}</dd>
+          {item.hint && <dd className="mt-1.5 truncate text-xs text-white/55">{item.hint}</dd>}
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function SectionLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} className="text-xs font-medium text-primary underline-offset-4 hover:underline">
+      {children}
+    </Link>
+  );
+}
 
 export default async function DashboardPage() {
   const { profile } = await getCurrentProfile();
+  const isAdmin = isAdminRole(profile.role);
   const supabase = await createClient();
 
-  const [stats, activity, deadlines, upcomingEvents] = await Promise.all([
+  const [stats, activity, deadlines, upcomingEvents, leaderboard, tasks] = await Promise.all([
     getDashboardStats(),
     getRecentActivity(6),
     getUpcomingDeadlines(5),
-    getUpcomingEvents(4),
+    getUpcomingEvents(5),
+    getLeaderboard(),
+    isAdmin ? getAllTasks() : getTasksAssignedToMe(),
   ]);
 
   const { data: currentCommittee } = stats.activeTenure
@@ -42,131 +82,162 @@ export default async function DashboardPage() {
         .limit(6)
     : { data: [] };
 
+  const openTasks = tasks.filter((t) => t.status !== "completed").length;
+  const contributors = leaderboard.filter((e) => e.points > 0 || e.badges.length > 0).slice(0, 5);
+  const topPoints = Math.max(...contributors.map((e) => e.points), 0);
+  const tenure = stats.activeTenure;
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={`Welcome, ${profile.full_name.split(" ")[0]}`}
-        description={`${ROLE_LABELS[profile.role]} · IEEE AP-S Student Branch Chapter, IEM`}
-      />
+      <section className="relative overflow-hidden rounded-2xl bg-ink text-white">
+        <div className="pointer-events-none absolute -top-4 right-0 size-36 sm:right-4 sm:size-56 lg:size-72">
+          <PropagationArt id="dashboard" className="size-full" />
+        </div>
+        <div className="relative z-10 px-6 pt-7 pb-6 sm:px-8 sm:pt-8">
+          <p className="type-eyebrow text-trace">Overview</p>
+          <h1 className="type-display mt-2 max-w-[70%] text-[1.8rem] font-bold leading-[1.08] tracking-[-0.02em] sm:text-[2.4rem]">
+            Welcome back, {profile.full_name.split(" ")[0] || "there"}
+          </h1>
+          <p className="mt-2 text-sm text-white/70">
+            {ROLE_LABELS[profile.role]}
+            {profile.position ? ` · ${profile.position}` : ""}
+          </p>
+          <HeroReadouts
+            items={[
+          {
+            label: "Tenure",
+            value: tenure ? shortAcademicYear(tenure.academic_year) : "—",
+            hint: tenure
+              ? `${format(parseISO(tenure.start_date), "MMM yyyy")} – ${format(parseISO(tenure.end_date), "MMM yyyy")}`
+              : "No active tenure",
+          },
+          { label: "Committee", value: stats.committeeCount, hint: "Serving this tenure" },
+          { label: "Members", value: stats.totalMembers, hint: "Registered accounts" },
+          { label: "Events held", value: stats.completedEvents, hint: `${stats.plannedEvents} planned` },
+          { label: "Open tasks", value: openTasks, hint: isAdmin ? "Across the chapter" : "Assigned to you" },
+          {
+            label: "Documents",
+            value: stats.totalDocuments,
+            hint: `${stats.pendingHandovers} handover${stats.pendingHandovers === 1 ? "" : "s"} open`,
+          },
+            ]}
+          />
+        </div>
+      </section>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard
-          label="Active Tenure"
-          value={stats.activeTenure?.academic_year ?? "—"}
-          icon={CalendarRange}
-          hint={stats.activeTenure ? "Current academic year" : "No active tenure set"}
-          tone="primary"
-        />
-        <StatCard
-          label="Current Committee"
-          value={stats.committeeCount}
-          icon={Users}
-          hint="Executive members serving"
-          tone="accent"
-        />
-        <StatCard
-          label="Total Members"
-          value={stats.totalMembers}
-          icon={Users}
-          hint="All-time registered users"
-        />
-        <StatCard
-          label="Completed Events"
-          value={stats.completedEvents}
-          icon={CalendarCheck2}
-          hint={`${stats.plannedEvents} upcoming`}
-          tone="success"
-        />
-        <StatCard
-          label="Pending Tasks"
-          value={stats.pendingTasks}
-          icon={ListTodo}
-          hint="Across active handovers"
-          tone="warning"
-        />
-        <StatCard
-          label="Documents"
-          value={stats.totalDocuments}
-          icon={FileText}
-          hint={`${stats.pendingHandovers} handover(s) in progress`}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-base">Current Committee</CardTitle>
-            <Button nativeButton={false} render={<Link href="/leadership" />} variant="ghost" size="sm">
-              View all
-            </Button>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        <Card className="lg:col-span-3">
+          <CardHeader>
+            <CardTitle>Upcoming events</CardTitle>
+            <CardAction>
+              <SectionLink href="/events">All events</SectionLink>
+            </CardAction>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {(!currentCommittee || currentCommittee.length === 0) && (
-              <p className="text-sm text-muted-foreground">
-                No active tenure configured yet. Set one up in Tenure Management.
-              </p>
+          <CardContent>
+            {upcomingEvents.length === 0 ? (
+              <EmptyState compact icon={CalendarDays} title="Nothing scheduled" description="Planned events will show up here." />
+            ) : (
+              <ul className="divide-y">
+                {upcomingEvents.map((e) => {
+                  const date = parseISO(e.event_date);
+                  return (
+                    <li key={e.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
+                      <DateBlock date={e.event_date} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{e.title}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {EVENT_TYPE_LABEL[e.type] ?? "Event"}
+                          {e.venue ? ` · ${e.venue}` : ""}
+                        </p>
+                      </div>
+                      <span className="type-readout shrink-0 text-xs text-muted-foreground">{relativeDay(date)}</span>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
-            {currentCommittee?.map((m) => (
-              <div key={m.id} className="flex items-center justify-between gap-2">
-                <div>
-                  <p className="text-sm font-medium">{m.profile?.full_name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {m.custom_title || m.designation?.title}
-                  </p>
-                </div>
-                <Badge variant="outline" className="shrink-0">
-                  {ROLE_LABELS[(m.profile?.role as Profile["role"]) ?? "working"]}
-                </Badge>
-              </div>
-            ))}
           </CardContent>
         </Card>
 
-        <div className="lg:col-span-1">
-          <UpcomingDeadlines deadlines={deadlines as (HandoverTask & { handover_record?: { designation?: { title: string } | null } | null })[]} />
-        </div>
-
-        <div className="lg:col-span-1">
-          <RecentActivity activity={activity as (ActivityLog & { actor?: Pick<Profile, "full_name" | "role"> | null })[]} />
-        </div>
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Top contributors</CardTitle>
+            <CardAction>
+              <SectionLink href="/leaderboard">Leaderboard</SectionLink>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            {contributors.length === 0 ? (
+              <EmptyState
+                compact
+                icon={Trophy}
+                title="No points given yet"
+                description={isAdmin ? "Give points from the Leaderboard to start the rankings." : "Rankings appear once points are given."}
+              />
+            ) : (
+              <ol className="space-y-4">
+                {contributors.map((e) => (
+                  <li key={e.profile_id} className="grid grid-cols-[1.25rem_minmax(0,1fr)_auto] items-center gap-3">
+                    <span className="type-readout text-xs text-muted-foreground">{e.rank}</span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{e.full_name}</p>
+                      <MeterBar value={e.points} max={topPoints} className="mt-1.5" />
+                    </div>
+                    <span className="type-readout text-sm font-medium">{e.points}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">Upcoming Events</CardTitle>
-          <Button nativeButton={false} render={<Link href="/events" />} variant="ghost" size="sm">
-            View all
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {upcomingEvents.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No upcoming events scheduled.</p>
-          ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {upcomingEvents.map((e) => (
-                <div key={e.id} className="rounded-lg border p-3">
-                  <Badge variant="secondary" className="mb-2 capitalize">
-                    {e.type.replace("_", " ")}
-                  </Badge>
-                  <p className="text-sm font-medium leading-tight">{e.title}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {format(new Date(e.event_date), "dd MMM yyyy")}
-                    {e.venue ? ` · ${e.venue}` : ""}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Current committee</CardTitle>
+            <CardAction>
+              <SectionLink href="/leadership">Roster</SectionLink>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            {!currentCommittee || currentCommittee.length === 0 ? (
+              <EmptyState
+                compact
+                icon={Users}
+                title={tenure ? "No members assigned" : "No active tenure"}
+                description={tenure ? "Add members from the Leadership page." : "Set an active tenure on the Tenure page."}
+              />
+            ) : (
+              <ul className="space-y-3">
+                {currentCommittee.map((m) => (
+                  <li key={m.id} className="flex items-center gap-3">
+                    <Avatar className="size-8">
+                      <AvatarFallback className="text-[11px] font-medium">{initials(m.profile?.full_name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{m.profile?.full_name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {m.custom_title || m.designation?.title}
+                        {" · "}
+                        {ROLE_LABELS[(m.profile?.role as Profile["role"]) ?? "working"]}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
 
-      <div className="flex flex-wrap gap-3">
-        <Button nativeButton={false} render={<Link href="/handover" />} variant="outline" size="sm">
-          <ArrowLeftRight className="size-4" /> Go to Handover Center
-        </Button>
-        <Button nativeButton={false} render={<Link href="/archive" />} variant="outline" size="sm">
-          <CalendarRange className="size-4" /> Browse Historical Archive
-        </Button>
+        <UpcomingDeadlines
+          deadlines={deadlines as (HandoverTask & { handover_record?: { designation?: { title: string } | null } | null })[]}
+        />
+
+        <RecentActivity
+          activity={activity as (ActivityLog & { actor?: Pick<Profile, "full_name" | "role"> | null })[]}
+          showAllLink={isAdmin}
+        />
       </div>
     </div>
   );

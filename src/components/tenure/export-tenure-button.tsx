@@ -31,5 +31,5 @@ export function ExportTenureButton({
     });
   }
 
-  return <ExportPdfButton onExport={handleExport} label="Export Tenure Report" />;
+  return <ExportPdfButton onExport={handleExport} label="Export tenure report" />;
 }
