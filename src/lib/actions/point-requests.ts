@@ -27,7 +27,7 @@ const SELECT =
   "id, points, reason, status, review_note, created_at, reviewed_at, requester:profiles!point_requests_requested_by_fkey(full_name, role), recipient:profiles!point_requests_recipient_id_fkey(full_name, role), reviewer:profiles!point_requests_reviewed_by_fkey(full_name), event:events(title)";
 
 function revalidateRequests() {
-  revalidatePath("/leaderboard");
+  revalidatePath("/recognition");
   revalidatePath("/my-recognition");
   revalidatePath("/dashboard");
 }
@@ -129,7 +129,7 @@ export async function createPointRequest(formData: FormData) {
         title: "Point request to review",
         message: `${me.full_name} (${ROLE_LABELS[me.role]}) requested ${points} points for ${recipient.full_name}: ${reason}`,
         type: "approval" as const,
-        link: "/leaderboard",
+        link: "/recognition",
       }))
     );
   }
@@ -171,7 +171,7 @@ export async function reviewPointRequest(id: string, approve: boolean, note?: st
   const { data: request } = await supabase
     .from("point_requests")
     .select(
-      "id, points, reason, requested_by, recipient_id, recipient:profiles!point_requests_recipient_id_fkey(full_name, role), requester:profiles!point_requests_requested_by_fkey(role)"
+      "id, points, reason, requested_by, recipient_id, recipient:profiles!point_requests_recipient_id_fkey(full_name, role)"
     )
     .eq("id", id)
     .single();
@@ -182,7 +182,6 @@ export async function reviewPointRequest(id: string, approve: boolean, note?: st
 
   const recipientRow = request.recipient as unknown as { full_name: string; role: UserRole } | null;
   const recipientName = recipientRow?.full_name ?? "the member";
-  const requesterRole = (request.requester as unknown as { role: UserRole } | null)?.role;
   const notes = [];
   if (request.requested_by) {
     notes.push({
@@ -192,7 +191,7 @@ export async function reviewPointRequest(id: string, approve: boolean, note?: st
         ? `${me.full_name} approved ${request.points} points for ${recipientName}.`
         : `${me.full_name} declined your request for ${recipientName}.${note ? ` ${note}` : ""}`,
       type: "approval" as const,
-      link: requesterRole === "working" ? "/my-recognition" : "/leaderboard",
+      link: "/my-recognition",
     });
   }
   if (approve) {
@@ -201,7 +200,7 @@ export async function reviewPointRequest(id: string, approve: boolean, note?: st
       title: `You earned ${request.points} point${request.points === 1 ? "" : "s"}`,
       message: `${request.reason} (requested by a teammate, approved by ${me.full_name})`,
       type: "info" as const,
-      link: recipientRow?.role === "working" ? "/my-recognition" : "/leaderboard",
+      link: "/my-recognition",
     });
   }
   if (notes.length) await supabase.from("notifications").insert(notes);

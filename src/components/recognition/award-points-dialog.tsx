@@ -91,7 +91,7 @@ export function AwardPointsDialog({
         <DialogHeader>
           <DialogTitle>Give points</DialogTitle>
           <DialogDescription>
-            Reward a Core or Working Committee member. Everyone can see points on the leaderboard.
+            Reward a Core or Working Committee member. They get a notification and see it on My points &amp; badges.
           </DialogDescription>
         </DialogHeader>
 

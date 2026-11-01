@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { differenceInCalendarDays, parseISO } from "date-fns";
-import { CalendarDays, HandHeart, Trophy, UserCheck, Users } from "lucide-react";
+import { CalendarDays, HandHeart, UserCheck, Users } from "lucide-react";
 import { PropagationArt } from "@/components/brand/propagation-art";
 import type { Readout } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DateBlock } from "@/components/shared/date-block";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
-import { MeterBar } from "@/components/recognition/meter-bar";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getDashboardStats, getUpcomingDeadlines, getUpcomingEvents } from "@/lib/actions/dashboard";
 import { getRecentActivity } from "@/lib/actions/activity";
-import { getLeaderboard } from "@/lib/actions/recognition";
+import { getLeaderboard, getRecentRecognition } from "@/lib/actions/recognition";
+import { RecognitionFeed } from "@/components/recognition/recognition-feed";
 import { getAllTasks, getTasksAssignedToMe } from "@/lib/actions/tasks";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -70,12 +70,13 @@ export default async function DashboardPage() {
   const isAdmin = isAdminRole(profile.role);
   const supabase = await createClient();
 
-  const [stats, activity, deadlines, upcomingEvents, leaderboard, tasks, { data: currentCommittee }, pendingApprovals, pendingPointRequests] = await Promise.all([
+  const [stats, activity, deadlines, upcomingEvents, leaderboard, recentRecognition, tasks, { data: currentCommittee }, pendingApprovals, pendingPointRequests] = await Promise.all([
     getDashboardStats(),
     getRecentActivity(6),
     getUpcomingDeadlines(5),
     getUpcomingEvents(5),
     getLeaderboard(),
+    getRecentRecognition(5),
     isAdmin ? getAllTasks() : getTasksAssignedToMe(),
     supabase
       .from("committee_members")
@@ -87,8 +88,6 @@ export default async function DashboardPage() {
   ]);
 
   const openTasks = tasks.filter((t) => t.status !== "completed").length;
-  const contributors = leaderboard.filter((e) => e.points > 0 || e.badges.length > 0).slice(0, 5);
-  const topPoints = Math.max(...contributors.map((e) => e.points), 0);
   const totalPoints = leaderboard.reduce((sum, e) => sum + e.points, 0);
 
   return (
@@ -143,7 +142,7 @@ export default async function DashboardPage() {
 
       {pendingPointRequests > 0 && (
         <Link
-          href="/leaderboard"
+          href="/recognition"
           className="group flex items-center gap-4 rounded-xl border border-trace/50 bg-trace/10 px-5 py-4 transition-colors hover:bg-trace/15"
         >
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-trace text-ink">
@@ -195,33 +194,15 @@ export default async function DashboardPage() {
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Top contributors</CardTitle>
+            <CardTitle>Recent recognition</CardTitle>
             <CardAction>
-              <SectionLink href="/leaderboard">Leaderboard</SectionLink>
+              <SectionLink href={isAdmin ? "/recognition" : "/my-recognition"}>
+                {isAdmin ? "Points & badges" : "My points"}
+              </SectionLink>
             </CardAction>
           </CardHeader>
           <CardContent>
-            {contributors.length === 0 ? (
-              <EmptyState
-                compact
-                icon={Trophy}
-                title="No points given yet"
-                description={isAdmin ? "Give points from the Leaderboard to start the rankings." : "Rankings appear once points are given."}
-              />
-            ) : (
-              <ol className="space-y-4">
-                {contributors.map((e) => (
-                  <li key={e.profile_id} className="grid grid-cols-[1.25rem_minmax(0,1fr)_auto] items-center gap-3">
-                    <span className="type-readout text-xs text-muted-foreground">{e.rank}</span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{e.full_name}</p>
-                      <MeterBar value={e.points} max={topPoints} className="mt-1.5" />
-                    </div>
-                    <span className="type-readout text-sm font-medium">{e.points}</span>
-                  </li>
-                ))}
-              </ol>
-            )}
+            <RecognitionFeed items={recentRecognition} />
           </CardContent>
         </Card>
       </div>

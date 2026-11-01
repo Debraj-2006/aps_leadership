@@ -66,7 +66,8 @@ async function requireRecipient(supabase: Awaited<ReturnType<typeof createClient
 }
 
 function revalidateRecognition() {
-  revalidatePath("/leaderboard");
+  revalidatePath("/recognition");
+  revalidatePath("/my-recognition");
   revalidatePath("/dashboard");
 }
 
@@ -258,7 +259,7 @@ export async function awardPoints(formData: FormData) {
     title: points > 0 ? `You earned ${points} point${points === 1 ? "" : "s"}` : "Points deducted",
     message: `${myName} ${verb}: ${reason}`,
     type: "info",
-    link: recipient.role === "working" ? "/my-recognition" : "/leaderboard",
+    link: "/my-recognition",
   });
 
   await logActivity({
@@ -308,7 +309,7 @@ export async function awardBadge(formData: FormData) {
     title: `You earned the ${label} badge`,
     message: `${myName} awarded you "${label}" for ${event.title}.${note ? ` ${note}` : ""}`,
     type: "info",
-    link: recipient.role === "working" ? "/my-recognition" : "/leaderboard",
+    link: "/my-recognition",
   });
 
   await logActivity({

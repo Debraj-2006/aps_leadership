@@ -25,7 +25,7 @@ export default async function DashboardSegmentLayout({
       profile={profile}
       notifications={notifications as Notification[]}
       unreadCount={unreadCount}
-      navBadges={{ "/admin/users": pendingApprovals, "/leaderboard": pendingPointRequests }}
+      navBadges={{ "/admin/users": pendingApprovals, "/recognition": pendingPointRequests }}
     >
       {children}
     </AppShell>

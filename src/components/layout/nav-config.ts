@@ -47,7 +47,8 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Contribution",
     items: [
       { label: "Tasks", href: "/tasks", icon: ListChecks },
-      { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
+      { label: "Points & badges", href: "/recognition", icon: Trophy, roles: ADMIN },
+      { label: "My points & badges", href: "/my-recognition", icon: Award, roles: ["core"] },
     ],
   },
   {
