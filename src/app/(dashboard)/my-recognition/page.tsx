@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeChip } from "@/components/recognition/badge-chip";
 import { getLeaderboard, getMyRecognition } from "@/lib/actions/recognition";
 import { MembersPointsTable } from "@/components/recognition/members-points-table";
+import { TopThree } from "@/components/recognition/top-three";
 import { getBadge } from "@/lib/badges";
 import { getCurrentProfile } from "@/lib/auth";
 import { peerPointRecipientRoles } from "@/lib/roles";
@@ -47,6 +48,8 @@ export default async function MyRecognitionPage() {
           { label: "Badges earned", value: badges.length, hint: "For chapter events" },
         ]}
       />
+
+      <TopThree entries={everyone} currentUserId={profile.id} />
 
       <Card>
         <CardHeader>

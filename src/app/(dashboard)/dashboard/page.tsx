@@ -13,6 +13,7 @@ import { getDashboardStats, getUpcomingDeadlines, getUpcomingEvents } from "@/li
 import { getRecentActivity } from "@/lib/actions/activity";
 import { getLeaderboard, getRecentRecognition } from "@/lib/actions/recognition";
 import { RecognitionFeed } from "@/components/recognition/recognition-feed";
+import { TopThree } from "@/components/recognition/top-three";
 import { getAllTasks, getTasksAssignedToMe } from "@/lib/actions/tasks";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -157,6 +158,8 @@ export default async function DashboardPage() {
           <span className="text-sm font-medium text-primary group-hover:underline">Review</span>
         </Link>
       )}
+
+      <TopThree entries={leaderboard} currentUserId={profile.id} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">
