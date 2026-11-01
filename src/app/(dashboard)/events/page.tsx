@@ -8,7 +8,6 @@ import { DeleteEventButton } from "@/components/events/delete-event-button";
 import { EventsFilterBar } from "@/components/events/events-filter-bar";
 import { ExportEventsButton } from "@/components/events/export-events-button";
 import { getEvents } from "@/lib/actions/events";
-import { getTenuresForSelect } from "@/lib/actions/leadership";
 import { getCurrentProfile } from "@/lib/auth";
 import { canManageEvents } from "@/lib/roles";
 import type { ChapterEvent } from "@/lib/types";
@@ -26,14 +25,14 @@ const TYPE_LABEL: Record<string, string> = {
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; type?: string; status?: string; tenureId?: string }>;
+  searchParams: Promise<{ search?: string; type?: string; status?: string }>;
 }) {
   const { profile } = await getCurrentProfile();
   const canManage = canManageEvents(profile.role);
   const params = await searchParams;
-  const filtered = Boolean(params.search || (params.type && params.type !== "all") || (params.status && params.status !== "all") || (params.tenureId && params.tenureId !== "all"));
+  const filtered = Boolean(params.search || (params.type && params.type !== "all") || (params.status && params.status !== "all"));
 
-  const [events, tenures] = await Promise.all([getEvents(params), getTenuresForSelect()]);
+  const events = await getEvents(params);
 
   return (
     <div className="space-y-6">
@@ -42,9 +41,9 @@ export default async function EventsPage({
         description="Technical talks, workshops, webinars, competitions and other chapter activities."
         actions={
           <>
-            <EventsFilterBar tenures={tenures} />
+            <EventsFilterBar />
             <ExportEventsButton events={events as ChapterEvent[]} scope="all-events" />
-            {canManage && <EventFormDialog tenures={tenures} />}
+            {canManage && <EventFormDialog />}
           </>
         }
       />
@@ -53,7 +52,7 @@ export default async function EventsPage({
         <EmptyState
           icon={CalendarDays}
           title={filtered ? "No events match these filters" : "No events recorded yet"}
-          description={filtered ? "Try a different type, status or tenure." : canManage ? "Use “New event” to record the first one." : "Events will appear here once they're added."}
+          description={filtered ? "Try a different search, type or status." : canManage ? "Use “New event” to record the first one." : "Events will appear here once they're added."}
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -66,7 +65,6 @@ export default async function EventsPage({
                   <div className="min-w-0 flex-1">
                     <p className="type-eyebrow text-[10px] text-muted-foreground">
                       {TYPE_LABEL[e.type] ?? "Event"}
-                      {e.tenure?.academic_year ? ` · ${e.tenure.academic_year}` : ""}
                     </p>
                     <h2 className="mt-1 leading-snug font-medium">{e.title}</h2>
                   </div>
@@ -103,7 +101,7 @@ export default async function EventsPage({
 
                 {canManage && (
                   <div className="mt-3 flex justify-end gap-1 border-t pt-3">
-                    <EventFormDialog tenures={tenures} editing={e} />
+                    <EventFormDialog editing={e} />
                     <DeleteEventButton id={e.id} />
                   </div>
                 )}

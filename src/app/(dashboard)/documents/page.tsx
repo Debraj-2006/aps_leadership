@@ -8,7 +8,6 @@ import { UploadDialog } from "@/components/documents/upload-dialog";
 import { DocumentsFilterBar } from "@/components/documents/documents-filter-bar";
 import { DocumentRowActions } from "@/components/documents/document-row-actions";
 import { getDocuments } from "@/lib/actions/documents";
-import { getTenuresForSelect } from "@/lib/actions/leadership";
 import { getCurrentProfile } from "@/lib/auth";
 import { isAdminRole } from "@/lib/roles";
 
@@ -31,13 +30,13 @@ function formatSize(bytes: number) {
 export default async function DocumentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; category?: string; tenureId?: string }>;
+  searchParams: Promise<{ search?: string; category?: string }>;
 }) {
   const { profile } = await getCurrentProfile();
   const params = await searchParams;
-  const filtered = Boolean(params.search || (params.category && params.category !== "all") || (params.tenureId && params.tenureId !== "all"));
+  const filtered = Boolean(params.search || (params.category && params.category !== "all"));
 
-  const [documents, tenures] = await Promise.all([getDocuments(params), getTenuresForSelect()]);
+  const documents = await getDocuments(params);
 
   return (
     <div className="space-y-6">
@@ -46,8 +45,8 @@ export default async function DocumentsPage({
         description="Event reports, meeting minutes, certificates and financial records, stored in one place."
         actions={
           <>
-            <DocumentsFilterBar tenures={tenures} />
-            <UploadDialog tenures={tenures} />
+            <DocumentsFilterBar />
+            <UploadDialog />
           </>
         }
       />
@@ -56,7 +55,7 @@ export default async function DocumentsPage({
         <EmptyState
           icon={FileText}
           title={filtered ? "No documents match these filters" : "No documents yet"}
-          description={filtered ? "Try a different category or tenure." : "Use “Upload document” to add the first report or minutes."}
+          description={filtered ? "Try a different search or category." : "Use “Upload document” to add the first report or minutes."}
         />
       ) : (
         <Card className="py-0">
@@ -65,7 +64,6 @@ export default async function DocumentsPage({
               <TableRow className="hover:bg-transparent">
                 <TableHead className="pl-5">Document</TableHead>
                 <TableHead>Category</TableHead>
-                <TableHead>Tenure</TableHead>
                 <TableHead>Uploaded by</TableHead>
                 <TableHead className="text-right">Size</TableHead>
                 <TableHead>Date</TableHead>
@@ -82,7 +80,6 @@ export default async function DocumentsPage({
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{CATEGORY_LABEL[d.category]}</TableCell>
-                  <TableCell className="type-readout text-xs text-muted-foreground">{d.tenure?.academic_year ?? "—"}</TableCell>
                   <TableCell className="text-muted-foreground">{d.uploader?.full_name ?? "—"}</TableCell>
                   <TableCell className="type-readout text-right text-xs text-muted-foreground">{formatSize(d.file_size)}</TableCell>
                   <TableCell className="type-readout text-xs text-muted-foreground">{format(new Date(d.created_at), "dd MMM yyyy")}</TableCell>

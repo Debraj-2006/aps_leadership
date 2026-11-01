@@ -29,20 +29,18 @@ import { ROLE_LABELS } from "@/lib/roles";
 import type { CommitteeMember, Designation, Profile, UserRole } from "@/lib/types";
 
 interface Props {
-  tenureId: string;
   designations: Designation[];
   profiles: Pick<Profile, "id" | "full_name" | "email" | "role">[];
   editing?: CommitteeMember;
 }
 
-export function MemberFormDialog({ tenureId, designations, profiles, editing }: Props) {
+export function MemberFormDialog({ designations, profiles, editing }: Props) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"existing" | "new">("existing");
   const [pending, startTransition] = useTransition();
 
   function handleSubmit(formData: FormData) {
     formData.set("mode", mode);
-    formData.set("tenure_id", tenureId);
 
     startTransition(async () => {
       const result = editing
@@ -75,7 +73,7 @@ export function MemberFormDialog({ tenureId, designations, profiles, editing }: 
           <DialogDescription>
             {editing
               ? "Update designation or transition status for this member."
-              : "Assign an existing user or register a new person to this tenure's committee."}
+              : "Assign an existing user or register a new person to the committee."}
           </DialogDescription>
         </DialogHeader>
 
@@ -183,7 +181,7 @@ export function MemberFormDialog({ tenureId, designations, profiles, editing }: 
           <div className="flex items-center gap-2">
             <Checkbox id="is_outgoing" name="is_outgoing" defaultChecked={editing?.is_outgoing} />
             <Label htmlFor="is_outgoing" className="cursor-pointer font-normal">
-              Mark as outgoing (transitioning out this tenure)
+              Mark as outgoing (handing over their role)
             </Label>
           </div>
 

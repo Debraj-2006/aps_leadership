@@ -6,8 +6,6 @@ import { format } from "date-fns";
 import type { HandoverTask } from "@/lib/types";
 
 export function ExportHandoverButton(params: {
-  fromTenure: string;
-  toTenure: string;
   designation: string;
   outgoing: string;
   incoming: string;

@@ -12,15 +12,11 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 // Advisor are institutional roles and stay admin-assigned only.
 export const SIGNUP_ROLES: UserRole[] = ["executive", "core", "working"];
 
-// Full administrative access: tenures, leadership, handover approvals, etc.
+// Full administrative access: leadership, handover approvals, etc.
 export const ADMIN_ROLES: UserRole[] = ["super_admin", "faculty_advisor", "executive"];
 
 export function isAdminRole(role: UserRole): boolean {
   return ADMIN_ROLES.includes(role);
-}
-
-export function canManageTenures(role: UserRole): boolean {
-  return isAdminRole(role);
 }
 
 export function canManageLeadership(role: UserRole): boolean {

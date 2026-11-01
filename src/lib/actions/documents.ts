@@ -7,17 +7,16 @@ import type { DocumentCategory, DocumentVisibility } from "@/lib/types";
 
 const BUCKET = "documents";
 
-export async function getDocuments(filters: { search?: string; category?: string; tenureId?: string }) {
+export async function getDocuments(filters: { search?: string; category?: string }) {
   const supabase = await createClient();
   let query = supabase
     .from("documents")
-    .select("*, tenure:tenures(academic_year), uploader:profiles(full_name)")
+    .select("*, uploader:profiles(full_name)")
     .order("created_at", { ascending: false });
 
   if (filters.search) query = query.ilike("title", `%${filters.search}%`);
   if (filters.category && filters.category !== "all")
     query = query.eq("category", filters.category as DocumentCategory);
-  if (filters.tenureId && filters.tenureId !== "all") query = query.eq("tenure_id", filters.tenureId);
 
   const { data } = await query;
   return data ?? [];
@@ -32,14 +31,13 @@ export async function uploadDocument(formData: FormData) {
   const title = String(formData.get("title") || "").trim();
   const category = String(formData.get("category") || "other");
   const visibility = String(formData.get("visibility") || "all") as DocumentVisibility;
-  const tenureId = String(formData.get("tenure_id") || "") || null;
   const eventId = String(formData.get("event_id") || "") || null;
 
   if (!file || file.size === 0) return { error: "Please choose a file to upload." };
   if (!title) return { error: "Document title is required." };
 
   const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-  const path = `${tenureId ?? "general"}/${category}/${Date.now()}-${safeName}`;
+  const path = `general/${category}/${Date.now()}-${safeName}`;
 
   const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file, {
     contentType: file.type,
@@ -53,7 +51,6 @@ export async function uploadDocument(formData: FormData) {
       title,
       category,
       visibility,
-      tenure_id: tenureId,
       event_id: eventId,
       file_path: path,
       file_size: file.size,

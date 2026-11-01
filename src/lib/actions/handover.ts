@@ -16,7 +16,7 @@ export async function getHandoverRecords() {
   let query = supabase
     .from("handover_records")
     .select(
-      "*, from_tenure:tenures!handover_records_from_tenure_id_fkey(academic_year), to_tenure:tenures!handover_records_to_tenure_id_fkey(academic_year), outgoing_profile:profiles!handover_records_outgoing_profile_id_fkey(full_name), incoming_profile:profiles!handover_records_incoming_profile_id_fkey(full_name), designation:designations(title), tasks:handover_tasks(*)"
+      "*, outgoing_profile:profiles!handover_records_outgoing_profile_id_fkey(full_name), incoming_profile:profiles!handover_records_incoming_profile_id_fkey(full_name), designation:designations(title), tasks:handover_tasks(*)"
     )
     .order("created_at", { ascending: false });
 
@@ -33,7 +33,7 @@ export async function getHandoverRecord(id: string) {
   const { data } = await supabase
     .from("handover_records")
     .select(
-      "*, from_tenure:tenures!handover_records_from_tenure_id_fkey(academic_year), to_tenure:tenures!handover_records_to_tenure_id_fkey(academic_year), outgoing_profile:profiles!handover_records_outgoing_profile_id_fkey(full_name, email), incoming_profile:profiles!handover_records_incoming_profile_id_fkey(full_name, email), designation:designations(title), tasks:handover_tasks(*), handover_documents(document:documents(id, title, file_path, category))"
+      "*, outgoing_profile:profiles!handover_records_outgoing_profile_id_fkey(full_name, email), incoming_profile:profiles!handover_records_incoming_profile_id_fkey(full_name, email), designation:designations(title), tasks:handover_tasks(*), handover_documents(document:documents(id, title, file_path, category))"
     )
     .eq("id", id)
     .single();
@@ -43,8 +43,6 @@ export async function getHandoverRecord(id: string) {
 export async function createHandoverRecord(formData: FormData) {
   const supabase = await createClient();
 
-  const fromTenureId = String(formData.get("from_tenure_id") || "") || null;
-  const toTenureId = String(formData.get("to_tenure_id") || "") || null;
   const designationId = String(formData.get("designation_id") || "") || null;
   const outgoingProfileId = String(formData.get("outgoing_profile_id") || "") || null;
   const incomingProfileId = String(formData.get("incoming_profile_id") || "") || null;
@@ -53,8 +51,6 @@ export async function createHandoverRecord(formData: FormData) {
   const { data, error } = await supabase
     .from("handover_records")
     .insert({
-      from_tenure_id: fromTenureId,
-      to_tenure_id: toTenureId,
       designation_id: designationId,
       outgoing_profile_id: outgoingProfileId,
       incoming_profile_id: incomingProfileId,

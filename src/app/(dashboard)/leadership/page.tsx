@@ -1,12 +1,11 @@
 import { format, parseISO } from "date-fns";
-import { CalendarRange, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StatusPill } from "@/components/shared/status-pill";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TenureFilter } from "@/components/leadership/tenure-filter";
 import { MemberFormDialog } from "@/components/leadership/member-form-dialog";
 import { DeleteMemberButton } from "@/components/leadership/delete-member-button";
 import { DesignationManager } from "@/components/leadership/designation-manager";
@@ -15,64 +14,40 @@ import {
   getCommitteeMembers,
   getDesignations,
   getProfilesForSelect,
-  getTenuresForSelect,
 } from "@/lib/actions/leadership";
 import { getCurrentProfile } from "@/lib/auth";
 import { canManageLeadership, ROLE_LABELS } from "@/lib/roles";
 import { initials } from "@/lib/format";
 import type { UserRole } from "@/lib/types";
 
-export default async function LeadershipPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tenure?: string }>;
-}) {
+export default async function LeadershipPage() {
   const { profile } = await getCurrentProfile();
   const canManage = canManageLeadership(profile.role);
 
-  const [tenures, designations, profiles] = await Promise.all([
-    getTenuresForSelect(),
+  const [members, designations, profiles] = await Promise.all([
+    getCommitteeMembers(),
     getDesignations(),
     getProfilesForSelect(),
   ]);
-
-  const { tenure } = await searchParams;
-  const activeTenure = tenures.find((t) => t.status === "active");
-  const selectedTenureId = tenure || activeTenure?.id || tenures[0]?.id;
-  const members = selectedTenureId ? await getCommitteeMembers(selectedTenureId) : [];
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Leadership"
-        description="Committee roster and designations for each tenure."
+        description="The chapter's committee roster and designations."
         actions={
           <>
-            {tenures.length > 0 && <TenureFilter tenures={tenures} current={selectedTenureId ?? ""} />}
-            {members.length > 0 && (
-              <ExportCommitteeButton
-                tenureLabel={tenures.find((t) => t.id === selectedTenureId)?.academic_year ?? "committee"}
-                members={members}
-              />
-            )}
+            {members.length > 0 && <ExportCommitteeButton members={members} />}
             {canManage && <DesignationManager designations={designations} />}
-            {canManage && selectedTenureId && (
-              <MemberFormDialog tenureId={selectedTenureId} designations={designations} profiles={profiles} />
-            )}
+            {canManage && <MemberFormDialog designations={designations} profiles={profiles} />}
           </>
         }
       />
 
-      {!selectedTenureId ? (
-        <EmptyState
-          icon={CalendarRange}
-          title="No tenure yet"
-          description="Create a tenure on the Tenure page first, then add its committee here."
-        />
-      ) : members.length === 0 ? (
+      {members.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="No committee members for this tenure"
+          title="No committee members yet"
           description={canManage ? "Use “Add member” to build the roster." : "The roster will appear once members are added."}
         />
       ) : (
@@ -117,7 +92,7 @@ export default async function LeadershipPage({
                   {canManage && (
                     <TableCell className="pr-5 text-right">
                       <div className="flex justify-end gap-1">
-                        <MemberFormDialog tenureId={selectedTenureId} designations={designations} profiles={profiles} editing={m} />
+                        <MemberFormDialog designations={designations} profiles={profiles} editing={m} />
                         <DeleteMemberButton id={m.id} />
                       </div>
                     </TableCell>

@@ -23,9 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { uploadDocument } from "@/lib/actions/documents";
-import type { Tenure } from "@/lib/types";
-
-export function UploadDialog({ tenures }: { tenures: Pick<Tenure, "id" | "academic_year">[] }) {
+export function UploadDialog() {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -91,21 +89,6 @@ export function UploadDialog({ tenures }: { tenures: Pick<Tenure, "id" | "academ
                 </SelectContent>
               </Select>
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Tenure</Label>
-            <Select name="tenure_id">
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Associate with a tenure (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {tenures.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.academic_year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           <DialogFooter>
             <Button type="submit" disabled={pending}>

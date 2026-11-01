@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 import { CalendarDays, HandHeart, Trophy, UserCheck, Users } from "lucide-react";
 import { PropagationArt } from "@/components/brand/propagation-art";
 import type { Readout } from "@/components/shared/readout-strip";
@@ -20,7 +20,7 @@ import { redirect } from "next/navigation";
 import { canApprovePendingUsers, isAdminRole, ROLE_LABELS, WORKING_HOME } from "@/lib/roles";
 import { getPendingApprovalCount } from "@/lib/actions/users";
 import { getPendingPointRequestCount } from "@/lib/actions/point-requests";
-import { initials, shortAcademicYear } from "@/lib/format";
+import { initials } from "@/lib/format";
 import type { ActivityLog, HandoverTask, Profile } from "@/lib/types";
 
 const EVENT_TYPE_LABEL: Record<string, string> = {
@@ -79,8 +79,7 @@ export default async function DashboardPage() {
     isAdmin ? getAllTasks() : getTasksAssignedToMe(),
     supabase
       .from("committee_members")
-      .select("*, profile:profiles(full_name, role), designation:designations(title, rank), tenure:tenures!inner(status)")
-      .eq("tenure.status", "active")
+      .select("*, profile:profiles(full_name, role), designation:designations(title, rank)")
       .order("rank", { foreignTable: "designations", ascending: true })
       .limit(6),
     canApprovePendingUsers(profile.role) ? getPendingApprovalCount() : Promise.resolve(0),
@@ -90,7 +89,7 @@ export default async function DashboardPage() {
   const openTasks = tasks.filter((t) => t.status !== "completed").length;
   const contributors = leaderboard.filter((e) => e.points > 0 || e.badges.length > 0).slice(0, 5);
   const topPoints = Math.max(...contributors.map((e) => e.points), 0);
-  const tenure = stats.activeTenure;
+  const totalPoints = leaderboard.reduce((sum, e) => sum + e.points, 0);
 
   return (
     <div className="space-y-6">
@@ -109,17 +108,11 @@ export default async function DashboardPage() {
           </p>
           <HeroReadouts
             items={[
-          {
-            label: "Tenure",
-            value: tenure ? shortAcademicYear(tenure.academic_year) : "—",
-            hint: tenure
-              ? `${format(parseISO(tenure.start_date), "MMM yyyy")} – ${format(parseISO(tenure.end_date), "MMM yyyy")}`
-              : "No active tenure",
-          },
-          { label: "Committee", value: stats.committeeCount, hint: "Serving this tenure" },
+          { label: "Committee", value: stats.committeeCount, hint: "On the roster" },
           { label: "Members", value: stats.totalMembers, hint: "Registered accounts" },
           { label: "Events held", value: stats.completedEvents, hint: `${stats.plannedEvents} planned` },
           { label: "Open tasks", value: openTasks, hint: isAdmin ? "Across the chapter" : "Assigned to you" },
+          { label: "Points given", value: totalPoints, hint: "Across all members" },
           {
             label: "Documents",
             value: stats.totalDocuments,
@@ -246,8 +239,8 @@ export default async function DashboardPage() {
               <EmptyState
                 compact
                 icon={Users}
-                title={tenure ? "No members assigned" : "No active tenure"}
-                description={tenure ? "Add members from the Leadership page." : "Set an active tenure on the Tenure page."}
+                title="No committee members yet"
+                description="Add members from the Leadership page."
               />
             ) : (
               <ul className="space-y-3">

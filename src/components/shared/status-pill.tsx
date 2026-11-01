@@ -31,12 +31,6 @@ export const EVENT_STATUS: Record<string, { tone: StatusTone; label: string }> =
   cancelled: { tone: "neutral", label: "Cancelled" },
 };
 
-export const TENURE_STATUS: Record<string, { tone: StatusTone; label: string }> = {
-  active: { tone: "active", label: "Active" },
-  upcoming: { tone: "info", label: "Upcoming" },
-  completed: { tone: "neutral", label: "Completed" },
-};
-
 export const HANDOVER_STATUS: Record<string, { tone: StatusTone; label: string }> = {
   pending: { tone: "neutral", label: "Pending" },
   in_progress: { tone: "info", label: "In progress" },

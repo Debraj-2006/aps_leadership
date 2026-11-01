@@ -20,9 +20,9 @@ const martianMono = Martian_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "IEEE AP-S IEM | Leadership & Tenure Transition Hub",
+  title: "IEEE AP-S IEM | Leadership Hub",
   description:
-    "Centralized leadership, tenure, and knowledge transition management for the IEEE Antennas & Propagation Society Student Branch Chapter at IEM.",
+    "Committee roster, events, documents, tasks, recognition and handovers for the IEEE Antennas & Propagation Society Student Branch Chapter at IEM.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

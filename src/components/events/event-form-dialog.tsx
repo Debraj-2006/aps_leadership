@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createEvent, updateEvent } from "@/lib/actions/events";
-import type { ChapterEvent, Tenure } from "@/lib/types";
+import type { ChapterEvent } from "@/lib/types";
 
 const EVENT_TYPES = [
   "technical_talk",
@@ -36,13 +36,7 @@ const EVENT_TYPES = [
   "other",
 ];
 
-export function EventFormDialog({
-  tenures,
-  editing,
-}: {
-  tenures: Pick<Tenure, "id" | "academic_year">[];
-  editing?: ChapterEvent;
-}) {
+export function EventFormDialog({ editing }: { editing?: ChapterEvent }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -123,21 +117,6 @@ export function EventFormDialog({
           <div className="space-y-2">
             <Label htmlFor="speaker">Speaker / Resource person</Label>
             <Input id="speaker" name="speaker" defaultValue={editing?.speaker ?? ""} />
-          </div>
-          <div className="col-span-2 space-y-2">
-            <Label>Tenure</Label>
-            <Select name="tenure_id" defaultValue={editing?.tenure_id ?? undefined}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Associate with a tenure" />
-              </SelectTrigger>
-              <SelectContent>
-                {tenures.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.academic_year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           <div className="col-span-2 space-y-2">
             <Label htmlFor="description">Description</Label>

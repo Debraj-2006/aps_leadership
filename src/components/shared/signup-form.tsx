@@ -13,7 +13,7 @@ import { POSITION_REQUIRED_ROLES, ROLE_LABELS, SIGNUP_ROLES } from "@/lib/roles"
 import type { UserRole } from "@/lib/types";
 
 const TIER_HINTS: Record<string, string> = {
-  executive: "Runs the chapter: tenures, roster, handovers, and points, badges and tasks for members.",
+  executive: "Runs the chapter: roster, handovers, approvals, and points, badges and tasks for members.",
   core: "Manages events and documents, and assigns tasks to Working Committee members.",
   working: "Sees the tasks assigned to you, plus your own points and badges.",
 };

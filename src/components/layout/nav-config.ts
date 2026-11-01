@@ -1,11 +1,9 @@
 import {
   LayoutDashboard,
   Users,
-  CalendarRange,
   CalendarDays,
   FileText,
   ArrowLeftRight,
-  Archive,
   UserCog,
   ScrollText,
   Trophy,
@@ -35,7 +33,6 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Committee",
     items: [
       { label: "Leadership", href: "/leadership", icon: Users },
-      { label: "Tenure", href: "/tenure", icon: CalendarRange },
       { label: "Handover", href: "/handover", icon: ArrowLeftRight },
     ],
   },
@@ -44,7 +41,6 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Events", href: "/events", icon: CalendarDays },
       { label: "Documents", href: "/documents", icon: FileText },
-      { label: "Archive", href: "/archive", icon: Archive },
     ],
   },
   {

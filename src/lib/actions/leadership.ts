@@ -17,15 +17,6 @@ async function requireLeadershipAccess() {
   return !!profile && canManageLeadership(profile.role as UserRole);
 }
 
-export async function getTenuresForSelect() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("tenures")
-    .select("id, academic_year, status")
-    .order("start_date", { ascending: false });
-  return data ?? [];
-}
-
 export async function getDesignations() {
   const supabase = await createClient();
   const { data } = await supabase.from("designations").select("*").order("rank");
@@ -41,12 +32,11 @@ export async function getProfilesForSelect() {
   return data ?? [];
 }
 
-export async function getCommitteeMembers(tenureId: string) {
+export async function getCommitteeMembers() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("committee_members")
     .select("*, profile:profiles(*), designation:designations(*)")
-    .eq("tenure_id", tenureId)
     .order("rank", { foreignTable: "designations", ascending: true });
   return data ?? [];
 }
@@ -63,7 +53,6 @@ export async function addCommitteeMember(formData: FormData) {
   if (!(await requireLeadershipAccess())) return { error: "Not authorized to manage leadership." };
 
   const mode = String(formData.get("mode"));
-  const tenureId = String(formData.get("tenure_id"));
   const designationId = String(formData.get("designation_id"));
   const customTitle = String(formData.get("custom_title") || "") || null;
   const isOutgoing = formData.get("is_outgoing") === "on";
@@ -103,12 +92,11 @@ export async function addCommitteeMember(formData: FormData) {
     if (profileError) return { error: profileError.message };
   }
 
-  if (!profileId || !tenureId || !designationId) {
+  if (!profileId || !designationId) {
     return { error: "Please complete all required fields." };
   }
 
   const { error } = await supabase.from("committee_members").insert({
-    tenure_id: tenureId,
     profile_id: profileId,
     designation_id: designationId,
     custom_title: customTitle,

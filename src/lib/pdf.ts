@@ -3,6 +3,10 @@ import autoTable from "jspdf-autotable";
 
 const BRAND = { r: 0, g: 50, b: 80 };
 
+function today() {
+  return new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
+
 function addLetterhead(doc: jsPDF, title: string, subtitle?: string) {
   doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
   doc.rect(0, 0, doc.internal.pageSize.getWidth(), 28, "F");
@@ -35,21 +39,14 @@ function addFooter(doc: jsPDF) {
     const w = doc.internal.pageSize.getWidth();
     doc.setFontSize(8);
     doc.setTextColor(140, 140, 140);
-    doc.text(
-      `Generated ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })} · Leadership & Tenure Transition Hub`,
-      14,
-      h - 8
-    );
+    doc.text(`Generated ${today()} · Leadership Hub`, 14, h - 8);
     doc.text(`Page ${i} of ${pageCount}`, w - 30, h - 8);
   }
 }
 
-export function generateCommitteeReport(
-  tenureLabel: string,
-  members: { name: string; designation: string; email: string; status: string }[]
-) {
+export function generateCommitteeReport(members: { name: string; designation: string; email: string; status: string }[]) {
   const doc = new jsPDF();
-  addLetterhead(doc, "Executive Committee Roster", tenureLabel);
+  addLetterhead(doc, "Committee Roster", `As of ${today()}`);
   autoTable(doc, {
     startY: 54,
     head: [["Name", "Designation", "Email", "Status"]],
@@ -58,7 +55,7 @@ export function generateCommitteeReport(
     styles: { fontSize: 9 },
   });
   addFooter(doc);
-  doc.save(`committee-roster-${tenureLabel}.pdf`);
+  doc.save("committee-roster.pdf");
 }
 
 export function generateEventsReport(
@@ -79,8 +76,6 @@ export function generateEventsReport(
 }
 
 export function generateHandoverReport(params: {
-  fromTenure: string;
-  toTenure: string;
   designation: string;
   outgoing: string;
   incoming: string;
@@ -88,7 +83,7 @@ export function generateHandoverReport(params: {
   tasks: { title: string; status: string; priority: string; dueDate: string }[];
 }) {
   const doc = new jsPDF();
-  addLetterhead(doc, "Handover Summary Report", `${params.designation} · ${params.fromTenure} → ${params.toTenure}`);
+  addLetterhead(doc, "Handover Summary Report", `${params.designation} · ${params.outgoing} → ${params.incoming}`);
 
   doc.setFontSize(10);
   doc.text(`Outgoing: ${params.outgoing}`, 14, 56);
@@ -110,49 +105,5 @@ export function generateHandoverReport(params: {
   });
 
   addFooter(doc);
-  doc.save(`handover-${params.designation}-${params.fromTenure}-to-${params.toTenure}.pdf`);
-}
-
-export function generateTenureReport(params: {
-  academicYear: string;
-  theme: string;
-  achievements: string;
-  members: { name: string; designation: string }[];
-  events: { title: string; date: string; status: string }[];
-}) {
-  const doc = new jsPDF();
-  addLetterhead(doc, `Tenure Report · ${params.academicYear}`, params.theme);
-
-  let y = 56;
-  if (params.achievements) {
-    doc.setFontSize(10);
-    const lines = doc.splitTextToSize(`Achievements: ${params.achievements}`, 180);
-    doc.text(lines, 14, y);
-    y += lines.length * 5 + 8;
-  }
-
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text("Executive Committee", 14, y);
-  autoTable(doc, {
-    startY: y + 4,
-    head: [["Name", "Designation"]],
-    body: params.members.map((m) => [m.name, m.designation]),
-    headStyles: { fillColor: [0, 50, 80] },
-    styles: { fontSize: 9 },
-  });
-
-  const afterMembersY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
-  doc.setFont("helvetica", "bold");
-  doc.text("Events Conducted", 14, afterMembersY);
-  autoTable(doc, {
-    startY: afterMembersY + 4,
-    head: [["Event", "Date", "Status"]],
-    body: params.events.map((e) => [e.title, e.date, e.status]),
-    headStyles: { fillColor: [0, 50, 80] },
-    styles: { fontSize: 9 },
-  });
-
-  addFooter(doc);
-  doc.save(`tenure-report-${params.academicYear}.pdf`);
+  doc.save(`handover-${params.designation}.pdf`);
 }

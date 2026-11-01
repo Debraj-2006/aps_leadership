@@ -43,7 +43,7 @@ export function DesignationManager({ designations }: { designations: Designation
         <DialogHeader>
           <DialogTitle>Manage designations</DialogTitle>
           <DialogDescription>
-            Define the executive positions available across all tenures.
+            Define the committee positions members can hold.
           </DialogDescription>
         </DialogHeader>
 

@@ -48,11 +48,10 @@ export function AuthShell({
         <div className="relative z-10 px-10 pb-10 xl:px-14 xl:pb-12">
           <p className="type-eyebrow text-trace">IEM Student Branch Chapter</p>
           <h1 className="type-display mt-3 max-w-xl text-[2.4rem] font-bold leading-[1.02] tracking-[-0.025em] text-balance xl:text-[2.9rem]">
-            Leadership &amp; tenure hub
+            Leadership hub
           </h1>
           <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/72">
-            Rosters, events, documents, tasks and handovers for every committee, kept in one place from one tenure to
-            the next.
+            Rosters, events, documents, tasks and handovers for the whole committee, kept in one place.
           </p>
           <ul className="mt-6 flex flex-wrap gap-2">
             {INSIDE.map(({ icon: Icon, label }) => (
@@ -76,7 +75,7 @@ export function AuthShell({
           </div>
           <LogoCard className="relative z-10 w-40 px-3.5 py-3" />
           <p className="type-eyebrow relative z-10 mt-5 text-trace">IEM Student Branch Chapter</p>
-          <p className="type-display relative z-10 mt-1.5 text-xl font-bold tracking-[-0.02em]">Leadership &amp; tenure hub</p>
+          <p className="type-display relative z-10 mt-1.5 text-xl font-bold tracking-[-0.02em]">Leadership hub</p>
         </div>
 
         <div className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10 lg:py-12">

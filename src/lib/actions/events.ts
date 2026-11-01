@@ -9,18 +9,16 @@ export async function getEvents(filters: {
   search?: string;
   type?: string;
   status?: string;
-  tenureId?: string;
 }) {
   const supabase = await createClient();
   let query = supabase
     .from("events")
-    .select("*, tenure:tenures(academic_year)")
+    .select("*")
     .order("event_date", { ascending: false });
 
   if (filters.search) query = query.ilike("title", `%${filters.search}%`);
   if (filters.type && filters.type !== "all") query = query.eq("type", filters.type as EventType);
   if (filters.status && filters.status !== "all") query = query.eq("status", filters.status as EventStatus);
-  if (filters.tenureId && filters.tenureId !== "all") query = query.eq("tenure_id", filters.tenureId);
 
   const { data } = await query;
   return data ?? [];
@@ -38,7 +36,6 @@ export async function createEvent(formData: FormData) {
   const speaker = String(formData.get("speaker") || "") || null;
   const status = String(formData.get("status") || "planned");
   const attendeesCount = Number(formData.get("attendees_count") || 0);
-  const tenureId = String(formData.get("tenure_id") || "") || null;
 
   if (!title || !eventDate) return { error: "Title and date are required." };
 
@@ -53,7 +50,6 @@ export async function createEvent(formData: FormData) {
       speaker,
       status,
       attendees_count: attendeesCount,
-      tenure_id: tenureId,
       created_by: authData.user?.id,
     })
     .select()
@@ -79,7 +75,6 @@ export async function updateEvent(id: string, formData: FormData) {
   const speaker = String(formData.get("speaker") || "") || null;
   const status = String(formData.get("status") || "planned");
   const attendeesCount = Number(formData.get("attendees_count") || 0);
-  const tenureId = String(formData.get("tenure_id") || "") || null;
 
   const { error } = await supabase
     .from("events")
@@ -92,7 +87,6 @@ export async function updateEvent(id: string, formData: FormData) {
       speaker,
       status,
       attendees_count: attendeesCount,
-      tenure_id: tenureId,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);

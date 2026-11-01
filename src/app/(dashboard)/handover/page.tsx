@@ -6,7 +6,7 @@ import { HANDOVER_STATUS, StatusPill } from "@/components/shared/status-pill";
 import { Progress } from "@/components/ui/progress";
 import { NewHandoverDialog } from "@/components/handover/new-handover-dialog";
 import { getHandoverRecords } from "@/lib/actions/handover";
-import { getDesignations, getProfilesForSelect, getTenuresForSelect } from "@/lib/actions/leadership";
+import { getDesignations, getProfilesForSelect } from "@/lib/actions/leadership";
 import { getCurrentProfile } from "@/lib/auth";
 import { canApproveHandover } from "@/lib/roles";
 import type { HandoverTask } from "@/lib/types";
@@ -15,9 +15,8 @@ export default async function HandoverPage() {
   const { profile } = await getCurrentProfile();
   const canManage = canApproveHandover(profile.role);
 
-  const [records, tenures, designations, profiles] = await Promise.all([
+  const [records, designations, profiles] = await Promise.all([
     getHandoverRecords(),
-    getTenuresForSelect(),
     getDesignations(),
     getProfilesForSelect(),
   ]);
@@ -27,7 +26,7 @@ export default async function HandoverPage() {
       <PageHeader
         title="Handover"
         description="Transfer responsibilities, pending tasks and documents from outgoing to incoming committee members."
-        actions={canManage ? <NewHandoverDialog tenures={tenures} designations={designations} profiles={profiles} /> : undefined}
+        actions={canManage ? <NewHandoverDialog designations={designations} profiles={profiles} /> : undefined}
       />
 
       {records.length === 0 ? (
@@ -56,7 +55,7 @@ export default async function HandoverPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="type-eyebrow text-[10px] text-muted-foreground">
-                      {r.from_tenure?.academic_year ?? "—"} → {r.to_tenure?.academic_year ?? "—"}
+                      Started {new Date(r.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                     </p>
                     <h2 className="mt-1 truncate font-medium">{r.designation?.title ?? "Role"}</h2>
                   </div>

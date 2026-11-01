@@ -11,9 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Tenure } from "@/lib/types";
-
-export function EventsFilterBar({ tenures }: { tenures: Pick<Tenure, "id" | "academic_year">[] }) {
+export function EventsFilterBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
@@ -64,19 +62,6 @@ export function EventsFilterBar({ tenures }: { tenures: Pick<Tenure, "id" | "aca
           <SelectItem value="planned">Planned</SelectItem>
           <SelectItem value="completed">Completed</SelectItem>
           <SelectItem value="cancelled">Cancelled</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select defaultValue={searchParams.get("tenureId") ?? "all"} onValueChange={(v) => updateParam("tenureId", v)}>
-        <SelectTrigger className="w-40">
-          <SelectValue placeholder="Tenure" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All tenures</SelectItem>
-          {tenures.map((t) => (
-            <SelectItem key={t.id} value={t.id}>
-              {t.academic_year}
-            </SelectItem>
-          ))}
         </SelectContent>
       </Select>
     </div>

@@ -50,13 +50,11 @@ export default async function HandoverDetailPage({ params }: { params: Promise<{
 
       <PageHeader
         title={record.designation?.title ?? "Handover"}
-        description={`${record.from_tenure?.academic_year ?? "—"} → ${record.to_tenure?.academic_year ?? "—"} · structured transfer of responsibilities, tasks and documents.`}
+        description="Structured transfer of responsibilities, tasks and documents."
         actions={
           <>
             <HandoverStatusActions id={record.id} status={record.status} canApprove={canApprove} />
             <ExportHandoverButton
-              fromTenure={record.from_tenure?.academic_year ?? "—"}
-              toTenure={record.to_tenure?.academic_year ?? "—"}
               designation={record.designation?.title ?? "Designation"}
               outgoing={record.outgoing_profile?.full_name ?? "—"}
               incoming={record.incoming_profile?.full_name ?? "—"}

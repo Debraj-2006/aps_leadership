@@ -24,14 +24,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createHandoverRecord } from "@/lib/actions/handover";
-import type { Designation, Profile, Tenure } from "@/lib/types";
+import type { Designation, Profile } from "@/lib/types";
 
 export function NewHandoverDialog({
-  tenures,
   designations,
   profiles,
 }: {
-  tenures: Pick<Tenure, "id" | "academic_year">[];
   designations: Designation[];
   profiles: Pick<Profile, "id" | "full_name" | "email">[];
 }) {
@@ -64,36 +62,6 @@ export function NewHandoverDialog({
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label>From tenure (outgoing)</Label>
-            <Select name="from_tenure_id" required>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select tenure" />
-              </SelectTrigger>
-              <SelectContent>
-                {tenures.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.academic_year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>To tenure (incoming)</Label>
-            <Select name="to_tenure_id" required>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select tenure" />
-              </SelectTrigger>
-              <SelectContent>
-                {tenures.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.academic_year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
           <div className="col-span-2 space-y-2">
             <Label>Designation</Label>
             <Select name="designation_id" required>
