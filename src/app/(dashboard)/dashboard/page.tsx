@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
-import { CalendarDays, Trophy, Users } from "lucide-react";
+import { CalendarDays, Trophy, UserCheck, Users } from "lucide-react";
 import { PropagationArt } from "@/components/brand/propagation-art";
 import type { Readout } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -16,7 +16,9 @@ import { getLeaderboard } from "@/lib/actions/recognition";
 import { getAllTasks, getTasksAssignedToMe } from "@/lib/actions/tasks";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { isAdminRole, ROLE_LABELS } from "@/lib/roles";
+import { redirect } from "next/navigation";
+import { canApprovePendingUsers, isAdminRole, ROLE_LABELS, WORKING_HOME } from "@/lib/roles";
+import { getPendingApprovalCount } from "@/lib/actions/users";
 import { initials, shortAcademicYear } from "@/lib/format";
 import type { ActivityLog, HandoverTask, Profile } from "@/lib/types";
 
@@ -61,26 +63,27 @@ function SectionLink({ href, children }: { href: string; children: React.ReactNo
 
 export default async function DashboardPage() {
   const { profile } = await getCurrentProfile();
+  // Sign-in redirects here from a server action, which renders without passing back
+  // through the middleware's Working Committee check.
+  if (profile.role === "working") redirect(WORKING_HOME);
   const isAdmin = isAdminRole(profile.role);
   const supabase = await createClient();
 
-  const [stats, activity, deadlines, upcomingEvents, leaderboard, tasks] = await Promise.all([
+  const [stats, activity, deadlines, upcomingEvents, leaderboard, tasks, { data: currentCommittee }, pendingApprovals] = await Promise.all([
     getDashboardStats(),
     getRecentActivity(6),
     getUpcomingDeadlines(5),
     getUpcomingEvents(5),
     getLeaderboard(),
     isAdmin ? getAllTasks() : getTasksAssignedToMe(),
+    supabase
+      .from("committee_members")
+      .select("*, profile:profiles(full_name, role), designation:designations(title, rank), tenure:tenures!inner(status)")
+      .eq("tenure.status", "active")
+      .order("rank", { foreignTable: "designations", ascending: true })
+      .limit(6),
+    canApprovePendingUsers(profile.role) ? getPendingApprovalCount() : Promise.resolve(0),
   ]);
-
-  const { data: currentCommittee } = stats.activeTenure
-    ? await supabase
-        .from("committee_members")
-        .select("*, profile:profiles(full_name, role), designation:designations(title, rank)")
-        .eq("tenure_id", stats.activeTenure.id)
-        .order("rank", { foreignTable: "designations", ascending: true })
-        .limit(6)
-    : { data: [] };
 
   const openTasks = tasks.filter((t) => t.status !== "completed").length;
   const contributors = leaderboard.filter((e) => e.points > 0 || e.badges.length > 0).slice(0, 5);
@@ -124,6 +127,24 @@ export default async function DashboardPage() {
           />
         </div>
       </section>
+
+      {pendingApprovals > 0 && (
+        <Link
+          href="/admin/users"
+          className="group flex items-center gap-4 rounded-xl border border-trace/50 bg-trace/10 px-5 py-4 transition-colors hover:bg-trace/15"
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-trace text-ink">
+            <UserCheck className="size-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-medium">
+              {pendingApprovals} {pendingApprovals === 1 ? "person is" : "people are"} waiting for approval
+            </p>
+            <p className="text-sm text-muted-foreground">They can&apos;t sign in until an Executive approves them.</p>
+          </div>
+          <span className="text-sm font-medium text-primary group-hover:underline">Review</span>
+        </Link>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">

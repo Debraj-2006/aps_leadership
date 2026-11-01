@@ -7,13 +7,18 @@ export async function logActivity(params: {
   entityType: string;
   entityId?: string;
   details?: Record<string, unknown>;
+  actorId?: string;
 }) {
   const supabase = await createClient();
-  const { data: authData } = await supabase.auth.getUser();
-  if (!authData.user) return;
+  let actorId = params.actorId;
+  if (!actorId) {
+    const { data } = await supabase.auth.getClaims();
+    actorId = data?.claims?.sub;
+  }
+  if (!actorId) return;
 
   await supabase.from("activity_logs").insert({
-    actor_id: authData.user.id,
+    actor_id: actorId,
     action: params.action,
     entity_type: params.entityType,
     entity_id: params.entityId ?? null,

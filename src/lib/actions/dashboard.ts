@@ -5,13 +5,10 @@ import { createClient } from "@/lib/supabase/server";
 export async function getDashboardStats() {
   const supabase = await createClient();
 
-  const { data: activeTenure } = await supabase
-    .from("tenures")
-    .select("*")
-    .eq("status", "active")
-    .maybeSingle();
-
+  // One parallel round: committee size is counted through the active tenure join
+  // instead of waiting for the tenure lookup first.
   const [
+    { data: activeTenure },
     { count: committeeCount },
     { count: totalMembers },
     { count: completedEvents },
@@ -20,12 +17,11 @@ export async function getDashboardStats() {
     { count: totalDocuments },
     { count: pendingHandovers },
   ] = await Promise.all([
-    activeTenure
-      ? supabase
-          .from("committee_members")
-          .select("*", { count: "exact", head: true })
-          .eq("tenure_id", activeTenure.id)
-      : Promise.resolve({ count: 0 } as { count: number }),
+    supabase.from("tenures").select("*").eq("status", "active").limit(1).maybeSingle(),
+    supabase
+      .from("committee_members")
+      .select("id, tenure:tenures!inner(status)", { count: "exact", head: true })
+      .eq("tenure.status", "active"),
     supabase.from("profiles").select("*", { count: "exact", head: true }),
     supabase.from("events").select("*", { count: "exact", head: true }).eq("status", "completed"),
     supabase.from("events").select("*", { count: "exact", head: true }).eq("status", "planned"),

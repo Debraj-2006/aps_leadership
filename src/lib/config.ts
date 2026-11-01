@@ -1,2 +1,3 @@
-// Set to true to require Super Admin / Faculty Advisor / Executive approval before accounts can log in.
-export const REQUIRE_APPROVAL = false;
+// New accounts can't sign in until an Executive (or Super Admin / Faculty Advisor) approves them,
+// and deactivated accounts lose access. Set to false to let new sign-ups in immediately.
+export const REQUIRE_APPROVAL = true;

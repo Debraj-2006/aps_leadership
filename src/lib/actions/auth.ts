@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logActivity } from "@/lib/actions/activity";
@@ -39,24 +40,18 @@ export async function loginAction(formData: FormData): Promise<{ error?: string 
     return { error: "Invalid credentials." };
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_active")
-    .eq("id", data.user.id)
-    .single();
-
-  if (REQUIRE_APPROVAL && profile && !profile.is_active) {
-    await supabase.auth.signOut();
-    return {
-      error: "Your account is pending approval from a Super Admin, Faculty Advisor, or Executive Committee member.",
-    };
+  if (REQUIRE_APPROVAL) {
+    const { data: profile } = await supabase.from("profiles").select("is_active").eq("id", data.user.id).single();
+    if (profile && !profile.is_active) {
+      await supabase.auth.signOut();
+      return {
+        error: "Your account is pending approval from a Super Admin, Faculty Advisor, or Executive Committee member.",
+      };
+    }
   }
 
-  await logActivity({
-    action: "logged in",
-    entityType: "auth",
-    entityId: data.user.id,
-  });
+  const userId = data.user.id;
+  after(() => logActivity({ action: "logged in", entityType: "auth", entityId: userId, actorId: userId }));
 
   revalidatePath("/", "layout");
   redirect("/dashboard");

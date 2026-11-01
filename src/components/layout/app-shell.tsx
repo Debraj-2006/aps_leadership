@@ -16,11 +16,13 @@ export function AppShell({
   profile,
   notifications,
   unreadCount,
+  pendingApprovals = 0,
   children,
 }: {
   profile: Profile;
   notifications: Notification[];
   unreadCount: number;
+  pendingApprovals?: number;
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -28,13 +30,13 @@ export function AppShell({
   return (
     <div className="flex min-h-screen">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 lg:block">
-        <SidebarNav profile={profile} />
+        <SidebarNav profile={profile} pendingApprovals={pendingApprovals} />
       </aside>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-72 border-0 bg-sidebar p-0">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <SidebarNav profile={profile} onNavigate={() => setMobileOpen(false)} />
+          <SidebarNav profile={profile} pendingApprovals={pendingApprovals} onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
 

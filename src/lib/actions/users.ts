@@ -81,12 +81,31 @@ export async function setUserActive(profileId: string, isActive: boolean) {
   const { error } = await supabase.from("profiles").update({ is_active: isActive }).eq("id", profileId);
   if (error) return { error: error.message };
 
+  if (isActive) {
+    await supabase.from("notifications").insert({
+      recipient_id: profileId,
+      title: "Your account is approved",
+      message: "Welcome to the chapter hub. You now have access to your committee's pages.",
+      type: "approval",
+    });
+  }
+
   await logActivity({
-    action: isActive ? "activated a user" : "deactivated a user",
+    action: isActive ? "approved a user" : "deactivated a user",
     entityType: "profile",
     entityId: profileId,
   });
 
   revalidatePath("/admin/users");
+  revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function getPendingApprovalCount() {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("is_active", false);
+  return count ?? 0;
 }

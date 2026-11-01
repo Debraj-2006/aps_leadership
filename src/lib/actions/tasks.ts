@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { logActivity } from "@/lib/actions/activity";
 import { assignableRolesFor, isAdminRole } from "@/lib/roles";
+import { getSessionProfile } from "@/lib/auth";
 import type { MemberTask, TaskPriority, TaskStatus, UserRole } from "@/lib/types";
 
 const TASK_SELECT =
@@ -13,12 +14,10 @@ const PRIORITIES: TaskPriority[] = ["low", "medium", "high"];
 const STATUSES: TaskStatus[] = ["pending", "in_progress", "completed"];
 
 async function getMe() {
-  const supabase = await createClient();
-  const { data: authData } = await supabase.auth.getUser();
-  if (!authData.user) return null;
-  const { data: me } = await supabase.from("profiles").select("id, role, full_name").eq("id", authData.user.id).single();
+  const me = await getSessionProfile();
   if (!me) return null;
-  return { supabase, id: me.id as string, role: me.role as UserRole, name: me.full_name as string };
+  const supabase = await createClient();
+  return { supabase, id: me.id, role: me.role as UserRole, name: me.full_name };
 }
 
 function revalidateTasks() {

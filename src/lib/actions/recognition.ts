@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { logActivity } from "@/lib/actions/activity";
 import { BADGES, getBadge } from "@/lib/badges";
 import { canAwardRecognition, RECOGNITION_RECIPIENT_ROLES } from "@/lib/roles";
+import { getAuthUser } from "@/lib/auth";
 import type { UserRole } from "@/lib/types";
 
 export interface LeaderboardBadge {
@@ -167,10 +168,10 @@ export async function getRecentRecognition(limit = 15): Promise<RecognitionFeedI
 }
 
 export async function getMyRecognition() {
+  const user = await getAuthUser();
+  if (!user) return { points: 0, pointHistory: [], badges: [] };
   const supabase = await createClient();
-  const { data: authData } = await supabase.auth.getUser();
-  if (!authData.user) return { points: 0, pointHistory: [], badges: [] };
-  const userId = authData.user.id;
+  const userId = user.id;
 
   const [{ data: points }, { data: badges }] = await Promise.all([
     supabase

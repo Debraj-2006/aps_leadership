@@ -4,18 +4,14 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { logActivity } from "@/lib/actions/activity";
 import { isAdminRole } from "@/lib/roles";
+import { getSessionProfile } from "@/lib/auth";
 import type { HandoverStatus, TaskPriority, TaskStatus, UserRole } from "@/lib/types";
 
 export async function getHandoverRecords() {
+  const profile = await getSessionProfile();
+  if (!profile) return [];
   const supabase = await createClient();
-  const { data: authData } = await supabase.auth.getUser();
-  if (!authData.user) return [];
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", authData.user.id)
-    .single();
+  const authData = { user: { id: profile.id } };
 
   let query = supabase
     .from("handover_records")
