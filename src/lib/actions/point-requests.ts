@@ -113,8 +113,8 @@ export async function createPointRequest(formData: FormData) {
     return {
       error:
         me.role === "working"
-          ? "Working Committee members can request points for themselves or for Core Committee members."
-          : "Core Committee members can request points for themselves or for Working Committee members.",
+          ? "Working Committee members can request points for themselves, Core Committee members or Executives."
+          : "Core Committee members can request points for themselves, Working Committee members or Executives.",
     };
   }
   const forWhom = forSelf ? "themselves" : recipient.full_name;

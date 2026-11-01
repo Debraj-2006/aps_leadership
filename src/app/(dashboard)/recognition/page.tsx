@@ -40,7 +40,7 @@ export default async function RecognitionPage() {
         }
       />
 
-      <PointRequestReviewList requests={pendingRequests} />
+      <PointRequestReviewList requests={pendingRequests} currentUserId={profile.id} />
 
       <ReadoutStrip
         items={[

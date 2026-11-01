@@ -22,7 +22,7 @@ function PointsChip({ points }: { points: number }) {
 }
 
 // For Executives: every pending request, oldest first, with Approve / Decline.
-export function PointRequestReviewList({ requests }: { requests: PointRequestRow[] }) {
+export function PointRequestReviewList({ requests, currentUserId }: { requests: PointRequestRow[]; currentUserId?: string }) {
   if (requests.length === 0) return null;
   return (
     <section aria-labelledby="point-requests-heading" className="space-y-3">
@@ -60,7 +60,11 @@ export function PointRequestReviewList({ requests }: { requests: PointRequestRow
               </div>
             </div>
             <div className="mt-3 flex justify-end border-t pt-3">
-              <ReviewPointRequestButtons id={r.id} recipientName={r.recipient?.full_name ?? "the member"} points={r.points} />
+              {r.recipient_id === currentUserId ? (
+                <p className="text-xs text-muted-foreground">This request is for you, so another Executive needs to review it.</p>
+              ) : (
+                <ReviewPointRequestButtons id={r.id} recipientName={r.recipient?.full_name ?? "the member"} points={r.points} />
+              )}
             </div>
           </li>
         ))}

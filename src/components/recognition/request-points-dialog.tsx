@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createPointRequest } from "@/lib/actions/point-requests";
+import { ROLE_LABELS } from "@/lib/roles";
 import type { UserRole } from "@/lib/types";
 
 const QUICK_POINTS = [5, 10, 25];
@@ -40,7 +41,7 @@ export function RequestPointsDialog({
   const target = myRole === "working" ? "Core Committee" : "Working Committee";
   const memberItems = [
     { value: meId, label: "Myself (for my own work)" },
-    ...members.map((m) => ({ value: m.id, label: `${m.full_name || m.email} · ${target}` })),
+    ...members.map((m) => ({ value: m.id, label: `${m.full_name || m.email} · ${ROLE_LABELS[m.role]}` })),
   ];
   const eventItems = [{ value: "none", label: "Not linked to an event" }, ...events.map((e) => ({ value: e.id, label: e.title }))];
 
@@ -65,7 +66,7 @@ export function RequestPointsDialog({
         <DialogHeader>
           <DialogTitle>Request points</DialogTitle>
           <DialogDescription>
-            Ask for points for your own work, or recognise a {target} member. An Executive reviews every request, and the points are added once they approve it.
+            Ask for points for your own work, or recognise a {target} member or an Executive. An Executive reviews every request, and the points are added once they approve it.
           </DialogDescription>
         </DialogHeader>
 

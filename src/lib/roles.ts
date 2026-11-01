@@ -48,11 +48,12 @@ export function canAwardRecognition(role: UserRole): boolean {
   return isAdminRole(role);
 }
 
-// Peer point requests: Working members request for Core members and vice versa.
+// Point requests: Working members request for Core members or Executives, Core members
+// for Working members or Executives, and both can request for themselves.
 // An Executive has to approve each request before the points are awarded.
 export function peerPointRecipientRoles(role: UserRole): UserRole[] {
-  if (role === "working") return ["core"];
-  if (role === "core") return ["working"];
+  if (role === "working") return ["core", "executive"];
+  if (role === "core") return ["working", "executive"];
   return [];
 }
 
