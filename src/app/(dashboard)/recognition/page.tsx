@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AwardPointsDialog } from "@/components/recognition/award-points-dialog";
 import { AwardBadgeDialog } from "@/components/recognition/award-badge-dialog";
 import { RecognitionFeed } from "@/components/recognition/recognition-feed";
+import { MembersPointsTable } from "@/components/recognition/members-points-table";
 import { PointRequestReviewList } from "@/components/recognition/point-request-lists";
 import { getCurrentProfile } from "@/lib/auth";
 import { getLeaderboard, getRecentRecognition, getRecognitionOptions } from "@/lib/actions/recognition";
@@ -57,6 +58,8 @@ export default async function RecognitionPage() {
           <RecognitionFeed items={feed} canUndo />
         </CardContent>
       </Card>
+
+      <MembersPointsTable entries={members} currentUserId={profile.id} />
     </div>
   );
 }

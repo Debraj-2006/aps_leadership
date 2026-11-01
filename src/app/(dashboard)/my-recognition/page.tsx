@@ -6,7 +6,8 @@ import { ReadoutStrip } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeChip } from "@/components/recognition/badge-chip";
-import { getMyRecognition } from "@/lib/actions/recognition";
+import { getLeaderboard, getMyRecognition } from "@/lib/actions/recognition";
+import { MembersPointsTable } from "@/components/recognition/members-points-table";
 import { getBadge } from "@/lib/badges";
 import { getCurrentProfile } from "@/lib/auth";
 import { peerPointRecipientRoles } from "@/lib/roles";
@@ -17,8 +18,9 @@ import { MyPointRequests } from "@/components/recognition/point-request-lists";
 export default async function MyRecognitionPage() {
   const { profile } = await getCurrentProfile();
   const canRequest = peerPointRecipientRoles(profile.role).length > 0;
-  const [{ points, pointHistory, badges }, myRequests, requestOptions] = await Promise.all([
+  const [{ points, pointHistory, badges }, everyone, myRequests, requestOptions] = await Promise.all([
     getMyRecognition(),
+    getLeaderboard(),
     canRequest ? getMyPointRequests() : Promise.resolve([]),
     canRequest ? getPointRequestOptions() : Promise.resolve(null),
   ]);
@@ -114,6 +116,8 @@ export default async function MyRecognitionPage() {
       </Card>
 
       {canRequest && <MyPointRequests requests={myRequests} />}
+
+      <MembersPointsTable entries={everyone} currentUserId={profile.id} />
     </div>
   );
 }
