@@ -90,7 +90,7 @@ function housePath({ x, w, h, roof }: House) {
 
 const POLES = [170, 560, 1060, 1430];
 
-/* ---------- Kawasaki, Kanagawa landmarks (all far away, in the back layer) ---------- */
+/* ---------- Skyline landmarks (all far away, in the back layer) ---------- */
 
 // Musashi-Kosugi high-rises with a few lit windows.
 const TOWERS = [
@@ -315,38 +315,6 @@ export function Town({
                 <rect x={x - 16} y="58" width="32" height="3" rx="1" />
               </g>
             ))}
-          </g>
-
-          {/* Blue Japanese address plate on the pole */}
-          <g transform="translate(548 96)">
-            <rect
-              width="24"
-              height="30"
-              rx="2"
-              fill="#1e5bb8"
-              stroke="#ffffff"
-              strokeWidth="1"
-            />
-            <text
-              x="12"
-              y="13"
-              textAnchor="middle"
-              fontSize="8"
-              fontWeight="700"
-              fill="#ffffff"
-            >
-              川崎市
-            </text>
-            <text
-              x="12"
-              y="22"
-              textAnchor="middle"
-              fontSize="4.2"
-              fill="#ffffff"
-              letterSpacing="0.2"
-            >
-              KAWASAKI
-            </text>
           </g>
 
           {/* Street lamp */}

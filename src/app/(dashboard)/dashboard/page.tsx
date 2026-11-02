@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { differenceInCalendarDays, parseISO } from "date-fns";
-import { CalendarDays, HandHeart, MapPin, UserCheck, Users } from "lucide-react";
+import { CalendarDays, HandHeart, UserCheck, Users } from "lucide-react";
 import { SkyScene, Town } from "@/components/brand/sky-scene";
 import { DoraWave } from "@/components/brand/dora-wave";
 import type { Readout } from "@/components/shared/readout-strip";
@@ -111,16 +111,12 @@ export default async function DashboardPage() {
               {ROLE_LABELS[profile.role]}
               {profile.position ? ` · ${profile.position}` : ""}
             </p>
-            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs text-white/80 ring-1 ring-white/15">
-              <MapPin className="size-3.5 text-trace" />
-              Kawasaki, Kanagawa · <span lang="ja">川崎市</span>
-            </p>
           </div>
           <div className="relative -mx-6 mt-4 h-20 sm:-mx-8 sm:h-28">
             <Town id="dashboard-town-back" layer="back" className="absolute inset-0 size-full" />
             <Town id="dashboard-town-front" layer="front" className="pointer-events-none absolute inset-0 size-full" />
             {/* Doraemon stands in front of the houses and waves. */}
-            <DoraWave className="absolute right-3 -bottom-1 w-24 sm:right-[16%] sm:w-32 lg:w-36" />
+            <DoraWave className="absolute right-2 -bottom-1 w-28 sm:right-[15%] sm:w-36 lg:w-40" />
           </div>
         </div>
         <div className="px-6 pt-1 pb-6 sm:px-8">
