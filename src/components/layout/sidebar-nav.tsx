@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "@/components/brand/brand-mark";
 import { Collar } from "@/components/brand/collar";
+import { Town } from "@/components/brand/sky-scene";
 import { TenureCountdown } from "@/components/layout/tenure-countdown";
 import { isActivePath, visibleNavGroups } from "@/components/layout/nav-config";
 import { ROLE_LABELS, WORKING_HOME } from "@/lib/roles";
@@ -24,7 +25,7 @@ export function SidebarNav({
   const home = profile.role === "working" ? WORKING_HOME : "/dashboard";
 
   return (
-    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+    <div className="sidebar-sky flex h-full flex-col text-sidebar-foreground">
       <Link
         href={home}
         onClick={onNavigate}
@@ -94,11 +95,12 @@ export function SidebarNav({
         ))}
       </nav>
 
-      <div className="px-3 pb-3">
+      <div className="px-3 pb-1">
         <TenureCountdown />
       </div>
 
-      <div className="border-t border-sidebar-border px-5 py-4">
+      <Town id="sidebar-town" className="block h-12 w-full shrink-0" />
+      <div className="bg-[#0b1d45] px-5 pt-1 pb-4">
         <p className="type-eyebrow text-[10px] text-sidebar-foreground/40">Signed in as</p>
         <p className="mt-1 truncate text-sm font-medium text-white">{ROLE_LABELS[profile.role]}</p>
         {profile.position && <p className="truncate text-xs text-sidebar-foreground/60">{profile.position}</p>}

@@ -168,6 +168,23 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Evening sky behind hero panels: deep blue overhead, warm glow at the horizon. */
+@utility sky-gradient {
+  background: linear-gradient(180deg, #0a1c4d 0%, #143f8f 42%, #2a64b5 72%, #5d85cc 86%, #d99ab8 100%);
+}
+
+/* Night-sky sidebar with a few stars. */
+@utility sidebar-sky {
+  background-color: var(--sidebar);
+  background-image:
+    radial-gradient(1.2px 1.2px at 30px 40px, rgb(255 255 255 / 0.7), transparent 60%),
+    radial-gradient(1px 1px at 150px 120px, rgb(255 255 255 / 0.5), transparent 60%),
+    radial-gradient(1.5px 1.5px at 210px 30px, rgb(255 255 255 / 0.6), transparent 60%),
+    radial-gradient(1px 1px at 90px 200px, rgb(255 255 255 / 0.4), transparent 60%),
+    linear-gradient(180deg, #0a1c4d 0%, #10398a 55%, #1a5cb0 100%);
+  background-size: 260px 240px, 260px 240px, 260px 240px, 260px 240px, 100% 100%;
+}
+
 /* Faint graph-paper grid for empty plots and empty states. */
 @utility graticule {
   background-image:
@@ -187,13 +204,27 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Soft polka dots, like a sky full of little clouds. */
-    background-image: radial-gradient(color-mix(in srgb, var(--primary) 9%, transparent) 1.5px, transparent 1.6px);
-    background-size: 26px 26px;
+    /* Daytime sky fading to a blossom-pink dusk. */
+    background-image:
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgb(249 180 207 / 0.28), transparent 70%),
+      radial-gradient(ellipse 50% 35% at 0% 0%, rgb(255 255 255 / 0.9), transparent 70%),
+      linear-gradient(180deg, #e3f1fd 0%, #edf5fd 55%, #f8eef5 100%);
     background-attachment: fixed;
   }
   h1, h2, h3 {
     font-family: var(--font-heading);
+  }
+  /* Night: a quiet star field over deep blue. */
+  .dark body {
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, rgb(255 255 255 / 0.55), transparent 60%),
+      radial-gradient(1px 1px at 140px 90px, rgb(255 255 255 / 0.4), transparent 60%),
+      radial-gradient(1.5px 1.5px at 260px 160px, rgb(255 255 255 / 0.5), transparent 60%),
+      radial-gradient(1px 1px at 330px 40px, rgb(255 255 255 / 0.35), transparent 60%),
+      radial-gradient(1px 1px at 90px 220px, rgb(255 255 255 / 0.3), transparent 60%),
+      linear-gradient(180deg, #050f22 0%, #08193a 60%, #0d2248 100%);
+    background-size: 360px 260px, 360px 260px, 360px 260px, 360px 260px, 360px 260px, 100% 100%;
+    background-attachment: fixed;
   }
   ::selection {
     background-color: color-mix(in srgb, var(--trace) 55%, transparent);

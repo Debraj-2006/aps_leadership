@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Award, CalendarDays, ListChecks, ArrowLeftRight } from "lucide-react";
 import apsLogo from "@/assets/brand/ieee-aps-logo.png";
-import { DoraArt } from "@/components/brand/dora-art";
+import { SkyScene, Town } from "@/components/brand/sky-scene";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const INSIDE = [
@@ -35,17 +35,16 @@ export function AuthShell({
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
       <aside className="relative hidden flex-col overflow-hidden bg-ink text-white lg:sticky lg:top-0 lg:flex lg:h-screen">
+        <SkyScene id="auth-desktop" town={false} />
         <div className="relative z-10 px-10 pt-10 xl:px-14 xl:pt-12">
           <LogoCard className="w-60 px-5 py-4 xl:w-[16.5rem]" />
         </div>
 
         <div className="relative min-h-0 flex-1">
-          <div className="pointer-events-none absolute inset-x-10 inset-y-6 xl:inset-x-14">
-            <DoraArt id="auth-desktop" className="size-full" />
-          </div>
+          <Town id="auth-desktop-town" className="absolute inset-x-0 bottom-0 h-40 w-full xl:h-48" />
         </div>
 
-        <div className="relative z-10 px-10 pb-10 xl:px-14 xl:pb-12">
+        <div className="relative z-10 bg-[#0b1d45] px-10 pt-2 pb-10 xl:px-14 xl:pb-12">
           <p className="type-eyebrow text-trace">IEM Student Branch Chapter</p>
           <h1 className="type-display mt-3 max-w-xl text-[2.4rem] font-bold leading-[1.02] tracking-[-0.025em] text-balance xl:text-[2.9rem]">
             Leadership hub
@@ -69,10 +68,8 @@ export function AuthShell({
 
       <main className="relative flex min-w-0 flex-col">
         <ThemeToggle className="absolute top-4 right-4 z-20 max-lg:bg-ink/70 max-lg:text-white max-lg:ring-1 max-lg:ring-white/15 max-lg:backdrop-blur-sm max-lg:hover:bg-ink max-lg:hover:text-white sm:top-5 sm:right-6" />
-        <div className="relative overflow-hidden bg-ink px-6 pt-8 pb-7 text-white sm:px-10 lg:hidden">
-          <div className="pointer-events-none absolute -top-2 -right-2 size-36 sm:size-44">
-            <DoraArt id="auth-mobile" className="size-full" />
-          </div>
+        <div className="relative overflow-hidden bg-ink px-6 pt-8 pb-20 text-white sm:px-10 lg:hidden">
+          <SkyScene id="auth-mobile" town="sm" />
           <LogoCard className="relative z-10 w-40 px-3.5 py-3" />
           <p className="type-eyebrow relative z-10 mt-5 text-trace">IEM Student Branch Chapter</p>
           <p className="type-display relative z-10 mt-1.5 text-xl font-bold tracking-[-0.02em]">Leadership hub</p>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { CalendarDays, HandHeart, UserCheck, Users } from "lucide-react";
-import { DoraArt } from "@/components/brand/dora-art";
+import { SkyScene, Town } from "@/components/brand/sky-scene";
 import type { Readout } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DateBlock } from "@/components/shared/date-block";
@@ -45,9 +45,9 @@ function relativeDay(date: Date) {
 
 function HeroReadouts({ items }: { items: Readout[] }) {
   return (
-    <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/12 md:grid-cols-3 xl:grid-cols-6">
+    <dl className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
       {items.map((item) => (
-        <div key={item.label} className="min-w-0 bg-ink px-4 py-3.5">
+        <div key={item.label} className="min-w-0 rounded-xl bg-white/[0.06] px-4 py-3.5 ring-1 ring-white/10">
           <dt className="type-eyebrow truncate text-[10px] text-white/55">{item.label}</dt>
           <dd className="type-display mt-1.5 truncate text-2xl leading-none font-bold tabular-nums">{item.value}</dd>
           {item.hint && <dd className="mt-1.5 truncate text-xs text-white/55">{item.hint}</dd>}
@@ -97,31 +97,37 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-2xl bg-ink text-white">
-        <div className="pointer-events-none absolute -top-8 -right-4 size-36 sm:size-52 lg:size-60">
-          <DoraArt id="dashboard" className="size-full" />
+      <section className="relative overflow-hidden rounded-2xl bg-[#0b1d45] text-white">
+        <div className="relative px-6 pt-7 sm:px-8 sm:pt-9">
+          <SkyScene id="dashboard" town={false} />
+          <div className="relative z-10">
+            <p className="type-eyebrow text-trace">Overview</p>
+            <h1 className="type-display mt-2 max-w-[70%] text-[1.8rem] font-bold leading-[1.08] tracking-[-0.02em] sm:text-[2.4rem]">
+              Welcome back, {profile.full_name.split(" ")[0] || "there"}
+            </h1>
+            <p className="mt-2 text-sm text-white/75">
+              {ROLE_LABELS[profile.role]}
+              {profile.position ? ` · ${profile.position}` : ""}
+            </p>
+          </div>
+          <Town
+            id="dashboard-town"
+            className="relative -mx-6 mt-4 block h-20 w-[calc(100%+3rem)] sm:-mx-8 sm:h-28 sm:w-[calc(100%+4rem)]"
+          />
         </div>
-        <div className="relative z-10 px-6 pt-7 pb-6 sm:px-8 sm:pt-8">
-          <p className="type-eyebrow text-trace">Overview</p>
-          <h1 className="type-display mt-2 max-w-[70%] text-[1.8rem] font-bold leading-[1.08] tracking-[-0.02em] sm:text-[2.4rem]">
-            Welcome back, {profile.full_name.split(" ")[0] || "there"}
-          </h1>
-          <p className="mt-2 text-sm text-white/70">
-            {ROLE_LABELS[profile.role]}
-            {profile.position ? ` · ${profile.position}` : ""}
-          </p>
+        <div className="px-6 pt-1 pb-6 sm:px-8">
           <HeroReadouts
             items={[
-          { label: "Committee", value: stats.committeeCount, hint: "Executive & core" },
-          { label: "Members", value: stats.totalMembers, hint: "Registered accounts" },
-          { label: "Events held", value: stats.completedEvents, hint: `${stats.plannedEvents} planned` },
-          { label: "Open tasks", value: openTasks, hint: isAdmin ? "Across the chapter" : "Assigned to you" },
-          { label: "Points given", value: totalPoints, hint: "Across all members" },
-          {
-            label: "Documents",
-            value: stats.totalDocuments,
-            hint: `${stats.pendingHandovers} handover${stats.pendingHandovers === 1 ? "" : "s"} open`,
-          },
+              { label: "Committee", value: stats.committeeCount, hint: "Executive & core" },
+              { label: "Members", value: stats.totalMembers, hint: "Registered accounts" },
+              { label: "Events held", value: stats.completedEvents, hint: `${stats.plannedEvents} planned` },
+              { label: "Open tasks", value: openTasks, hint: isAdmin ? "Across the chapter" : "Assigned to you" },
+              { label: "Points given", value: totalPoints, hint: "Across all members" },
+              {
+                label: "Documents",
+                value: stats.totalDocuments,
+                hint: `${stats.pendingHandovers} handover${stats.pendingHandovers === 1 ? "" : "s"} open`,
+              },
             ]}
           />
         </div>

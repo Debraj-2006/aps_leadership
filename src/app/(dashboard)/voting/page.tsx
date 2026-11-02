@@ -1,6 +1,6 @@
 import { Vote } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { DoraArt } from "@/components/brand/dora-art";
+import { SkyScene } from "@/components/brand/sky-scene";
 import { NewPollDialog } from "@/components/voting/new-poll-dialog";
 import { PollCard } from "@/components/voting/poll-card";
 import { getPolls, getVotingAccess } from "@/lib/actions/voting";
@@ -17,10 +17,8 @@ export default async function VotingPage() {
       />
 
       {polls.length === 0 ? (
-        <section className="relative overflow-hidden rounded-2xl bg-ink px-6 py-14 text-center text-white sm:px-10 sm:py-20">
-          <div className="pointer-events-none absolute -top-6 right-0 size-40 opacity-80 sm:size-64">
-            <DoraArt id="voting" className="size-full" />
-          </div>
+        <section className="relative overflow-hidden rounded-2xl bg-ink px-6 pt-14 pb-36 text-center text-white sm:px-10 sm:pt-20 sm:pb-44">
+          <SkyScene id="voting" town="md" />
           <div className="relative z-10 mx-auto flex max-w-md flex-col items-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15">
               <Vote className="size-7 text-trace" />

@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DoraArt } from "@/components/brand/dora-art";
+import { SkyScene } from "@/components/brand/sky-scene";
 import { logoutAction } from "@/lib/actions/auth";
 import { ROLE_LABELS } from "@/lib/roles";
 import { initials } from "@/lib/format";
@@ -62,10 +62,8 @@ export function UserMenu({ profile }: { profile: Profile }) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-1.5rem)] p-0">
-        <div className="relative overflow-hidden bg-ink px-4 pt-5 pb-4 text-white">
-          <div className="pointer-events-none absolute -top-3 -right-3 size-28 opacity-70">
-            <DoraArt id="profile-menu" className="size-full" />
-          </div>
+        <div className="relative overflow-hidden bg-ink px-4 pt-5 pb-14 text-white">
+          <SkyScene id="profile-menu" town="sm" petals={false} />
           <div className="relative flex items-center gap-3">
             <Avatar className="size-14 ring-2 ring-trace">
               <AvatarFallback className="bg-white/10 text-base font-semibold text-white">{initials(name)}</AvatarFallback>
