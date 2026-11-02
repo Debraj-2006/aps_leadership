@@ -24,7 +24,7 @@ const STARS = Array.from({ length: 70 }, (_, i) => ({
   delay: (rand() * 4).toFixed(2),
 }));
 
-const PETALS = Array.from({ length: 14 }, () => ({
+const PETALS = Array.from({ length: 24 }, () => ({
   x: rand() * 1200,
   delay: (rand() * 12).toFixed(2),
   duration: (9 + rand() * 7).toFixed(2),
@@ -390,6 +390,56 @@ export function Town({
   );
 }
 
+const PETAL_CSS = `
+  .sky-petal { animation-name: sky-petal; animation-timing-function: linear; animation-iteration-count: infinite; opacity: 0; }
+  @keyframes sky-petal {
+    0% { transform: translate(0, -30px) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.9; }
+    90% { opacity: 0.9; }
+    100% { transform: translate(var(--drift), 640px) rotate(540deg); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .sky-petal { display: none; } }
+`;
+
+/** Cherry-blossom petals drifting down over whatever sits behind them. */
+export function FallingPetals({
+  className,
+  count = 14,
+}: {
+  className?: string;
+  count?: number;
+}) {
+  return (
+    <svg
+      viewBox="0 0 1200 600"
+      preserveAspectRatio="xMidYMid slice"
+      className={cn("pointer-events-none", className)}
+      aria-hidden="true"
+    >
+      <style>{PETAL_CSS}</style>
+      {PETALS.slice(0, count).map((p, i) => (
+        <g key={i} transform={`translate(${p.x.toFixed(0)} 0)`}>
+          {/* The fall animates this group; the petal's own size stays on the path. */}
+          <g
+            className="sky-petal"
+            style={{
+              animationDuration: `${p.duration}s`,
+              animationDelay: `${p.delay}s`,
+              ["--drift" as string]: `${p.drift}px`,
+            }}
+          >
+            <path
+              transform={`scale(${p.scale})`}
+              d="M 0 0 C 6 -7 15 -3 12 5 C 10 10 3 11 0 8 C -2 5 -3 2 0 0 Z"
+              fill="#f9b4cf"
+            />
+          </g>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 export function SkyScene({
   id,
   className,
@@ -416,13 +466,6 @@ export function SkyScene({
         @keyframes sky-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
         .sky-cloud { animation: sky-cloud 40s linear infinite alternate; }
         @keyframes sky-cloud { from { transform: translateX(-40px); } to { transform: translateX(40px); } }
-        .sky-petal { animation-name: sky-petal; animation-timing-function: linear; animation-iteration-count: infinite; opacity: 0; }
-        @keyframes sky-petal {
-          0% { transform: translate(0, -30px) rotate(0deg); opacity: 0; }
-          10% { opacity: 0.9; }
-          90% { opacity: 0.9; }
-          100% { transform: translate(var(--drift), 640px) rotate(540deg); opacity: 0; }
-        }
         .sky-shoot { animation: sky-shoot 9s ease-in infinite; opacity: 0; }
         @keyframes sky-shoot {
           0%, 82% { transform: translate(0, 0); opacity: 0; }
@@ -431,11 +474,10 @@ export function SkyScene({
         }
         @media (prefers-reduced-motion: reduce) {
           .sky-twinkle, .sky-cloud, .sky-shoot { animation: none; }
-          .sky-petal { display: none; }
         }
       `}</style>
 
-      {/* Stars, clouds, shooting star, petals */}
+      {/* Stars, clouds and a shooting star */}
       <svg
         viewBox="0 0 1200 600"
         preserveAspectRatio="xMidYMid slice"
@@ -487,23 +529,9 @@ export function SkyScene({
             <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
           </linearGradient>
         </defs>
-        {petals &&
-          PETALS.map((p, i) => (
-            <g key={i} transform={`translate(${p.x.toFixed(0)} 0)`}>
-              <path
-                className="sky-petal"
-                style={{
-                  animationDuration: `${p.duration}s`,
-                  animationDelay: `${p.delay}s`,
-                  ["--drift" as string]: `${p.drift}px`,
-                }}
-                transform={`scale(${p.scale})`}
-                d="M 0 0 C 6 -7 15 -3 12 5 C 10 10 3 11 0 8 C -2 5 -3 2 0 0 Z"
-                fill="#f9b4cf"
-              />
-            </g>
-          ))}
       </svg>
+
+      {petals && <FallingPetals className="absolute inset-0 size-full" />}
 
       {/* Moon */}
       {moon && (

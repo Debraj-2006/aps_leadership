@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-// Shared pointer tracking for the cartoon characters: one set of window listeners for
-// every face on the page, and pupils are moved directly on the DOM (no re-renders).
+// Pointer tracking for cartoon eyes (used by the dashboard Doraemon): one set of window
+// listeners however many faces use it, and pupils move directly on the DOM (no re-renders).
 
 export type Eye = { cx: number; cy: number; maxX: number; maxY: number };
 
@@ -89,18 +89,3 @@ export function useFollowEyes(eyes: Eye[], viewBoxWidth: number) {
 
   return { svgRef, pupilRef };
 }
-
-/** Shared CSS for character faces: smooth pupils and an occasional blink. */
-export const FACE_CSS = `
-  .toon .pupil { transition: transform 90ms ease-out; }
-  .toon .blink { transform-box: fill-box; transform-origin: center; animation: toon-blink 5.5s infinite; }
-  @keyframes toon-blink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.08); } }
-  .toon .grin { opacity: 0; transition: opacity 150ms; }
-  .toon .calm { transition: opacity 150ms; }
-  .toon:hover .grin { opacity: 1; }
-  .toon:hover .calm { opacity: 0; }
-  @media (prefers-reduced-motion: reduce) {
-    .toon .blink { animation: none; }
-    .toon .pupil { transition: none; }
-  }
-`;
