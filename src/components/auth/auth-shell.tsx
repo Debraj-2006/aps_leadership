@@ -1,8 +1,19 @@
 import Image from "next/image";
-import { Award, CalendarDays, ListChecks, ArrowLeftRight } from "lucide-react";
+import { Award, CalendarDays, ListChecks, ArrowLeftRight, MapPin } from "lucide-react";
 import apsLogo from "@/assets/brand/ieee-aps-logo.png";
 import { SkyScene, Town } from "@/components/brand/sky-scene";
+import { DoraFace } from "@/components/brand/dora-face";
+import { Gian, Nobita, Shizuka, Suneo } from "@/components/brand/gang";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+
+function KawasakiChip() {
+  return (
+    <p className="mt-2 inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/85 ring-1 ring-white/15 backdrop-blur-sm">
+      <MapPin className="size-3.5 text-trace" />
+      Kawasaki, Kanagawa · <span lang="ja">川崎市</span>
+    </p>
+  );
+}
 
 const INSIDE = [
   { icon: ListChecks, label: "Tasks" },
@@ -36,12 +47,22 @@ export function AuthShell({
     <div className="grid min-h-screen bg-background lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
       <aside className="relative hidden flex-col overflow-hidden bg-ink text-white lg:sticky lg:top-0 lg:flex lg:h-screen">
         <SkyScene id="auth-desktop" town={false} />
-        <div className="relative z-10 px-10 pt-10 xl:px-14 xl:pt-12">
+        <div className="relative z-10 flex items-start justify-between gap-4 px-10 pt-10 xl:px-14 xl:pt-12">
           <LogoCard className="w-60 px-5 py-4 xl:w-[16.5rem]" />
+          <KawasakiChip />
         </div>
 
         <div className="relative min-h-0 flex-1">
-          <Town id="auth-desktop-town" className="absolute inset-x-0 bottom-0 h-40 w-full xl:h-48" />
+          <Town id="auth-desktop-town-back" layer="back" className="absolute inset-x-0 bottom-0 h-40 w-full xl:h-48" />
+          {/* The gang peeking over the rooftops */}
+          <div className="absolute inset-x-0 bottom-[68px] flex items-end justify-center xl:bottom-20">
+            <Shizuka className="-mr-3 w-[84px] xl:w-24" />
+            <Nobita className="-mr-2 w-[88px] xl:w-[100px]" />
+            <DoraFace className="z-10 mb-3 w-[104px] xl:w-[120px]" />
+            <Gian className="-ml-2 w-[100px] xl:w-[112px]" />
+            <Suneo className="-ml-3 w-[84px] xl:w-24" />
+          </div>
+          <Town id="auth-desktop-town-front" layer="front" className="pointer-events-none absolute inset-x-0 bottom-0 h-40 w-full xl:h-48" />
         </div>
 
         <div className="relative z-10 bg-[#0b1d45] px-10 pt-2 pb-10 xl:px-14 xl:pb-12">

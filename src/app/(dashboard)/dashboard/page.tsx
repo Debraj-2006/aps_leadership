@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { differenceInCalendarDays, parseISO } from "date-fns";
-import { CalendarDays, HandHeart, UserCheck, Users } from "lucide-react";
+import { CalendarDays, HandHeart, MapPin, UserCheck, Users } from "lucide-react";
 import { SkyScene, Town } from "@/components/brand/sky-scene";
 import { DoraFace } from "@/components/brand/dora-face";
+import { Nobita } from "@/components/brand/gang";
 import type { Readout } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DateBlock } from "@/components/shared/date-block";
@@ -111,11 +112,18 @@ export default async function DashboardPage() {
               {ROLE_LABELS[profile.role]}
               {profile.position ? ` · ${profile.position}` : ""}
             </p>
+            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs text-white/80 ring-1 ring-white/15">
+              <MapPin className="size-3.5 text-trace" />
+              Kawasaki, Kanagawa · <span lang="ja">川崎市</span>
+            </p>
           </div>
           <div className="relative -mx-6 mt-4 h-20 sm:-mx-8 sm:h-28">
             <Town id="dashboard-town-back" layer="back" className="absolute inset-0 size-full" />
-            {/* Peeks up from behind the nearest rooftops. */}
-            <DoraFace className="absolute right-4 bottom-7 w-24 sm:right-[20%] sm:bottom-10 sm:w-36 lg:right-[24%] lg:bottom-12 lg:w-40" />
+            {/* Doraemon and Nobita peek up from behind the nearest rooftops. */}
+            <div className="absolute right-4 bottom-7 flex items-end sm:right-[16%] sm:bottom-10 lg:bottom-12">
+              <Nobita className="-mr-3 mb-1 hidden w-28 sm:block lg:w-32" />
+              <DoraFace className="w-24 sm:w-36 lg:w-40" />
+            </div>
             <Town id="dashboard-town-front" layer="front" className="pointer-events-none absolute inset-0 size-full" />
           </div>
         </div>
