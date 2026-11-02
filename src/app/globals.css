@@ -7,8 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-fredoka), var(--font-nunito), ui-rounded, system-ui, sans-serif;
   --font-mono: var(--font-martian), ui-monospace, SFMono-Regular, Menlo, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -42,6 +42,7 @@
   --color-ink: var(--ink);
   --color-trace: var(--trace);
   --color-trace-ink: var(--trace-ink);
+  --color-collar: var(--collar);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --radius-sm: calc(var(--radius) * 0.6);
@@ -54,98 +55,99 @@
 }
 
 /*
-  Palette, taken from the IEEE AP-S logo
-  IEEE Dark Blue  #002855  sidebar, ink (the logo's triangle)
-  IEEE Blue       #00629b  actions, links, focus ("IEEE" and the outer arc)
-  IEEE Orange     #ffa300  the "you are here" marker and highlights (the logo's dot)
-  AP-S Teal       #009ca6  charts (the "AP-S" lettering)
-  Graticule       #f3f6f9  app background
-  Hairline        #d9e2eb  borders and grid lines
-  Signal Slate    #56677b  secondary text
+  Doraemon palette
+  Doraemon Blue  #0077c0  sidebar, hero panels, actions (his body)
+  Belly White    #ffffff  cards and popovers
+  Collar Red     #e5132a  accent stripes, destructive actions (collar and nose)
+  Bell Yellow    #ffcf00  the "you are here" marker and highlights (his bell)
+  Sky            #e9f6fe  app background
+  Cloud          #cfe5f3  borders and grid lines
 */
 :root {
-  --ink: #002855;
-  --trace: #ffa300;
-  --trace-ink: #8a4f00;
+  --ink: #0077c0;
+  --trace: #ffcf00;
+  --trace-ink: #8a6500;
+  --collar: #e5132a;
   --success: #1f8a55;
   --warning: #b86e00;
-  --background: #f3f6f9;
-  --foreground: #0a1a2f;
+  --background: #e9f6fe;
+  --foreground: #0f2a47;
   --card: #ffffff;
-  --card-foreground: #0a1a2f;
+  --card-foreground: #0f2a47;
   --popover: #ffffff;
-  --popover-foreground: #0a1a2f;
-  --primary: #00629b;
+  --popover-foreground: #0f2a47;
+  --primary: #0077c0;
   --primary-foreground: #ffffff;
-  --secondary: #e8eef5;
-  --secondary-foreground: #12304d;
-  --muted: #edf2f6;
-  --muted-foreground: #56677b;
-  --accent: #e8eef5;
-  --accent-foreground: #0a1a2f;
-  --destructive: #c8322a;
-  --border: #d9e2eb;
-  --input: #c6d2de;
-  --ring: #00629b;
-  --chart-1: #00629b;
-  --chart-2: #ffa300;
-  --chart-3: #009ca6;
-  --chart-4: #5f9e1a;
-  --chart-5: #002855;
-  --radius: 0.5rem;
-  --sidebar: #002855;
-  --sidebar-foreground: #c9d6e4;
-  --sidebar-primary: #ffa300;
-  --sidebar-primary-foreground: #002855;
-  --sidebar-accent: #0b3a6c;
+  --secondary: #dff0fb;
+  --secondary-foreground: #0f3a5f;
+  --muted: #eef7fd;
+  --muted-foreground: #4f6a83;
+  --accent: #dff0fb;
+  --accent-foreground: #0f2a47;
+  --destructive: #e5132a;
+  --border: #cfe5f3;
+  --input: #b9d7ea;
+  --ring: #0095d9;
+  --chart-1: #0095d9;
+  --chart-2: #ffcf00;
+  --chart-3: #e5132a;
+  --chart-4: #5fbf3a;
+  --chart-5: #0f2a47;
+  --radius: 0.75rem;
+  --sidebar: #0077c0;
+  --sidebar-foreground: #e8f5fe;
+  --sidebar-primary: #ffcf00;
+  --sidebar-primary-foreground: #0f2a47;
+  --sidebar-accent: #00609c;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #13426f;
-  --sidebar-ring: #ffa300;
+  --sidebar-border: #2b8fcd;
+  --sidebar-ring: #ffcf00;
 }
 
+/* Night sky version. */
 .dark {
-  --ink: #002855;
-  --trace: #ffa300;
-  --trace-ink: #ffc266;
+  --ink: #0a5b94;
+  --trace: #ffd43b;
+  --trace-ink: #ffe08a;
+  --collar: #ff5a66;
   --success: #45c08a;
   --warning: #f0a83c;
-  --background: #08131f;
-  --foreground: #e6edf4;
-  --card: #0e1d30;
-  --card-foreground: #e6edf4;
-  --popover: #0e1d30;
-  --popover-foreground: #e6edf4;
-  --primary: #4fb0e6;
-  --primary-foreground: #04121f;
-  --secondary: #16283e;
-  --secondary-foreground: #dce6f0;
-  --muted: #16283e;
-  --muted-foreground: #93a5b8;
-  --accent: #16283e;
-  --accent-foreground: #e6edf4;
-  --destructive: #f2665d;
+  --background: #061626;
+  --foreground: #e7f3fc;
+  --card: #0c2238;
+  --card-foreground: #e7f3fc;
+  --popover: #0c2238;
+  --popover-foreground: #e7f3fc;
+  --primary: #3fb6f2;
+  --primary-foreground: #04172a;
+  --secondary: #12304d;
+  --secondary-foreground: #dcebf7;
+  --muted: #12304d;
+  --muted-foreground: #93aec6;
+  --accent: #12304d;
+  --accent-foreground: #e7f3fc;
+  --destructive: #ff5a66;
   --border: rgb(255 255 255 / 11%);
   --input: rgb(255 255 255 / 16%);
-  --ring: #4fb0e6;
-  --chart-1: #4fb0e6;
-  --chart-2: #ffa300;
-  --chart-3: #2fc4cc;
-  --chart-4: #8fd14f;
-  --chart-5: #9fb7d6;
-  --sidebar: #001a38;
-  --sidebar-foreground: #c9d6e4;
-  --sidebar-primary: #ffa300;
-  --sidebar-primary-foreground: #002855;
-  --sidebar-accent: #0b2f58;
+  --ring: #3fb6f2;
+  --chart-1: #3fb6f2;
+  --chart-2: #ffd43b;
+  --chart-3: #ff5a66;
+  --chart-4: #7ad957;
+  --chart-5: #a9c7e3;
+  --sidebar: #04335a;
+  --sidebar-foreground: #d2e7f7;
+  --sidebar-primary: #ffd43b;
+  --sidebar-primary-foreground: #04172a;
+  --sidebar-accent: #0a4a7c;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgb(255 255 255 / 9%);
-  --sidebar-ring: #ffa300;
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: #ffd43b;
 }
 
-/* Wide Archivo: page titles, big numbers, the wordmark. */
+/* Rounded display type: page titles, big numbers, the wordmark. */
 @utility type-display {
-  font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  font-variation-settings: "wdth" 125;
+  font-family: var(--font-fredoka), var(--font-nunito), ui-rounded, system-ui, sans-serif;
 }
 
 /* Instrument-panel micro label: section names, column heads, readout labels. */
@@ -185,6 +187,13 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Soft polka dots, like a sky full of little clouds. */
+    background-image: radial-gradient(color-mix(in srgb, var(--primary) 9%, transparent) 1.5px, transparent 1.6px);
+    background-size: 26px 26px;
+    background-attachment: fixed;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-heading);
   }
   ::selection {
     background-color: color-mix(in srgb, var(--trace) 55%, transparent);

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { CalendarDays, HandHeart, UserCheck, Users } from "lucide-react";
-import { PropagationArt } from "@/components/brand/propagation-art";
+import { DoraArt } from "@/components/brand/dora-art";
 import type { Readout } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DateBlock } from "@/components/shared/date-block";
@@ -9,19 +9,19 @@ import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { getDashboardStats, getUpcomingDeadlines, getUpcomingEvents } from "@/lib/actions/dashboard";
+import { getDashboardStats, getRecentEvents, getUpcomingDeadlines, getUpcomingEvents } from "@/lib/actions/dashboard";
 import { getRecentActivity } from "@/lib/actions/activity";
 import { getLeaderboard, getRecentRecognition } from "@/lib/actions/recognition";
 import { RecognitionFeed } from "@/components/recognition/recognition-feed";
 import { TopThree } from "@/components/recognition/top-three";
 import { getAllTasks, getTasksAssignedToMe } from "@/lib/actions/tasks";
 import { getCurrentProfile } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { canApprovePendingUsers, isAdminRole, ROLE_LABELS, WORKING_HOME } from "@/lib/roles";
-import { getPendingApprovalCount } from "@/lib/actions/users";
+import { getMemberDirectory, getPendingApprovalCount } from "@/lib/actions/users";
 import { getPendingPointRequestCount } from "@/lib/actions/point-requests";
 import { initials } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { ActivityLog, HandoverTask, Profile } from "@/lib/types";
 
 const EVENT_TYPE_LABEL: Record<string, string> = {
@@ -38,6 +38,8 @@ function relativeDay(date: Date) {
   const days = differenceInCalendarDays(date, new Date());
   if (days === 0) return "Today";
   if (days === 1) return "Tomorrow";
+  if (days === -1) return "Yesterday";
+  if (days < 0) return `${-days} days ago`;
   return `in ${days} days`;
 }
 
@@ -45,7 +47,7 @@ function HeroReadouts({ items }: { items: Readout[] }) {
   return (
     <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-white/12 md:grid-cols-3 xl:grid-cols-6">
       {items.map((item) => (
-        <div key={item.label} className="min-w-0 bg-ink/85 px-4 py-3.5 backdrop-blur-sm">
+        <div key={item.label} className="min-w-0 bg-ink px-4 py-3.5">
           <dt className="type-eyebrow truncate text-[10px] text-white/55">{item.label}</dt>
           <dd className="type-display mt-1.5 truncate text-2xl leading-none font-bold tabular-nums">{item.value}</dd>
           {item.hint && <dd className="mt-1.5 truncate text-xs text-white/55">{item.hint}</dd>}
@@ -69,9 +71,8 @@ export default async function DashboardPage() {
   // through the middleware's Working Committee check.
   if (profile.role === "working") redirect(WORKING_HOME);
   const isAdmin = isAdminRole(profile.role);
-  const supabase = await createClient();
 
-  const [stats, activity, deadlines, upcomingEvents, leaderboard, recentRecognition, tasks, { data: currentCommittee }, pendingApprovals, pendingPointRequests] = await Promise.all([
+  const [stats, activity, deadlines, upcomingEvents, leaderboard, recentRecognition, tasks, directory, recentEvents, pendingApprovals, pendingPointRequests] = await Promise.all([
     getDashboardStats(),
     getRecentActivity(6),
     getUpcomingDeadlines(5),
@@ -79,23 +80,26 @@ export default async function DashboardPage() {
     getLeaderboard(),
     getRecentRecognition(5),
     isAdmin ? getAllTasks() : getTasksAssignedToMe(),
-    supabase
-      .from("committee_members")
-      .select("*, profile:profiles(full_name, role), designation:designations(title, rank)")
-      .order("rank", { foreignTable: "designations", ascending: true })
-      .limit(6),
+    getMemberDirectory(),
+    getRecentEvents(5),
     canApprovePendingUsers(profile.role) ? getPendingApprovalCount() : Promise.resolve(0),
     canApprovePendingUsers(profile.role) ? getPendingPointRequestCount() : Promise.resolve(0),
   ]);
 
   const openTasks = tasks.filter((t) => t.status !== "completed").length;
   const totalPoints = leaderboard.reduce((sum, e) => sum + e.points, 0);
+  // With nothing scheduled, show what the chapter did recently instead of an empty card.
+  const showingPast = upcomingEvents.length === 0 && recentEvents.length > 0;
+  const eventList = showingPast ? recentEvents : upcomingEvents;
+  const executives = directory
+    .filter((m) => m.role === "executive")
+    .sort((a, b) => (a.full_name ?? "").localeCompare(b.full_name ?? ""));
 
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-2xl bg-ink text-white">
-        <div className="pointer-events-none absolute -top-4 right-0 size-36 sm:right-4 sm:size-56 lg:size-72">
-          <PropagationArt id="dashboard" className="size-full" />
+        <div className="pointer-events-none absolute -top-8 -right-4 size-36 sm:size-52 lg:size-60">
+          <DoraArt id="dashboard" className="size-full" />
         </div>
         <div className="relative z-10 px-6 pt-7 pb-6 sm:px-8 sm:pt-8">
           <p className="type-eyebrow text-trace">Overview</p>
@@ -108,7 +112,7 @@ export default async function DashboardPage() {
           </p>
           <HeroReadouts
             items={[
-          { label: "Committee", value: stats.committeeCount, hint: "On the roster" },
+          { label: "Committee", value: stats.committeeCount, hint: "Executive & core" },
           { label: "Members", value: stats.totalMembers, hint: "Registered accounts" },
           { label: "Events held", value: stats.completedEvents, hint: `${stats.plannedEvents} planned` },
           { label: "Open tasks", value: openTasks, hint: isAdmin ? "Across the chapter" : "Assigned to you" },
@@ -121,6 +125,7 @@ export default async function DashboardPage() {
             ]}
           />
         </div>
+        <div className="h-2 bg-collar" aria-hidden="true" />
       </section>
 
       {pendingApprovals > 0 && (
@@ -164,33 +169,35 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Upcoming events</CardTitle>
+            <CardTitle>{showingPast ? "Recent events" : "Upcoming events"}</CardTitle>
             <CardAction>
               <SectionLink href="/events">All events</SectionLink>
             </CardAction>
           </CardHeader>
           <CardContent>
-            {upcomingEvents.length === 0 ? (
+            {eventList.length === 0 ? (
               <EmptyState compact icon={CalendarDays} title="Nothing scheduled" description="Planned events will show up here." />
             ) : (
-              <ul className="divide-y">
-                {upcomingEvents.map((e) => {
-                  const date = parseISO(e.event_date);
-                  return (
+              <>
+                {showingPast && (
+                  <p className="mb-3 text-xs text-muted-foreground">Nothing is scheduled yet. Here&apos;s what the chapter did lately.</p>
+                )}
+                <ul className="divide-y">
+                  {eventList.map((e) => (
                     <li key={e.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
                       <DateBlock date={e.event_date} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{e.title}</p>
                         <p className="truncate text-xs text-muted-foreground">
                           {EVENT_TYPE_LABEL[e.type] ?? "Event"}
-                          {e.venue ? ` · ${e.venue}` : ""}
+                          {e.venue && !/^(na|n\/a|-)$/i.test(e.venue.trim()) ? ` · ${e.venue}` : ""}
                         </p>
                       </div>
-                      <span className="type-readout shrink-0 text-xs text-muted-foreground">{relativeDay(date)}</span>
+                      <span className="type-readout shrink-0 text-xs text-muted-foreground">{relativeDay(parseISO(e.event_date))}</span>
                     </li>
-                  );
-                })}
-              </ul>
+                  ))}
+                </ul>
+              </>
             )}
           </CardContent>
         </Card>
@@ -210,36 +217,27 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className={cn("grid grid-cols-1 gap-6", deadlines.length > 0 ? "lg:grid-cols-3" : "lg:grid-cols-2")}>
         <Card>
           <CardHeader>
-            <CardTitle>Current committee</CardTitle>
+            <CardTitle>Executive Committee</CardTitle>
             <CardAction>
-              <SectionLink href="/leadership">Roster</SectionLink>
+              <SectionLink href="/leadership">Leadership</SectionLink>
             </CardAction>
           </CardHeader>
           <CardContent>
-            {!currentCommittee || currentCommittee.length === 0 ? (
-              <EmptyState
-                compact
-                icon={Users}
-                title="No committee members yet"
-                description="Add members from the Leadership page."
-              />
+            {executives.length === 0 ? (
+              <EmptyState compact icon={Users} title="No executives yet" description="Approved executive accounts show up here." />
             ) : (
               <ul className="space-y-3">
-                {currentCommittee.map((m) => (
+                {executives.slice(0, 6).map((m) => (
                   <li key={m.id} className="flex items-center gap-3">
                     <Avatar className="size-8">
-                      <AvatarFallback className="text-[11px] font-medium">{initials(m.profile?.full_name)}</AvatarFallback>
+                      <AvatarFallback className="bg-ink text-[11px] font-medium text-white">{initials(m.full_name)}</AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{m.profile?.full_name}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {m.custom_title || m.designation?.title}
-                        {" · "}
-                        {ROLE_LABELS[(m.profile?.role as Profile["role"]) ?? "working"]}
-                      </p>
+                      <p className="truncate text-sm font-medium">{m.full_name}</p>
+                      <p className="truncate text-xs text-muted-foreground">{m.position || ROLE_LABELS[m.role]}</p>
                     </div>
                   </li>
                 ))}
@@ -248,9 +246,11 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <UpcomingDeadlines
-          deadlines={deadlines as (HandoverTask & { handover_record?: { designation?: { title: string } | null } | null })[]}
-        />
+        {deadlines.length > 0 && (
+          <UpcomingDeadlines
+            deadlines={deadlines as (HandoverTask & { handover_record?: { designation?: { title: string } | null } | null })[]}
+          />
+        )}
 
         <RecentActivity
           activity={activity as (ActivityLog & { actor?: Pick<Profile, "full_name" | "role"> | null })[]}

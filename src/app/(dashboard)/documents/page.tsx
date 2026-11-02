@@ -43,14 +43,10 @@ export default async function DocumentsPage({
       <PageHeader
         title="Documents"
         description="Event reports, meeting minutes, certificates and financial records, stored in one place."
-        actions={
-          <>
-            <DocumentsFilterBar />
-            <UploadDialog />
-          </>
-        }
+        actions={<UploadDialog />}
       />
 
+      <DocumentsFilterBar />
       {documents.length === 0 ? (
         <EmptyState
           icon={FileText}

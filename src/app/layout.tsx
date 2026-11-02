@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
-import { Archivo, Martian_Mono } from "next/font/google";
+import { Fredoka, Martian_Mono, Nunito } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-const archivo = Archivo({
-  variable: "--font-archivo",
+// Rounded, friendly type for the Doraemon theme.
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
-  axes: ["wdth"],
+  display: "swap",
+});
+
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
   display: "swap",
 });
 
@@ -27,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${archivo.variable} ${martianMono.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${nunito.variable} ${fredoka.variable} ${martianMono.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <ThemeProvider>
           <TooltipProvider delay={200}>

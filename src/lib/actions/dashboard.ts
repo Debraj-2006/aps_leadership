@@ -14,7 +14,11 @@ export async function getDashboardStats() {
     { count: totalDocuments },
     { count: pendingHandovers },
   ] = await Promise.all([
-    supabase.from("committee_members").select("id", { count: "exact", head: true }),
+    supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true)
+      .in("role", ["executive", "core"]),
     supabase.from("profiles").select("*", { count: "exact", head: true }),
     supabase.from("events").select("*", { count: "exact", head: true }).eq("status", "completed"),
     supabase.from("events").select("*", { count: "exact", head: true }).eq("status", "planned"),
@@ -58,6 +62,20 @@ export async function getUpcomingEvents(limit = 5) {
     .select("*")
     .gte("event_date", today)
     .order("event_date", { ascending: true })
+    .limit(limit);
+
+  return data ?? [];
+}
+
+export async function getRecentEvents(limit = 5) {
+  const supabase = await createClient();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data } = await supabase
+    .from("events")
+    .select("*")
+    .lt("event_date", today)
+    .order("event_date", { ascending: false })
     .limit(limit);
 
   return data ?? [];

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BrandMark } from "@/components/brand/brand-mark";
+import { Collar } from "@/components/brand/collar";
 import { TenureCountdown } from "@/components/layout/tenure-countdown";
 import { isActivePath, visibleNavGroups } from "@/components/layout/nav-config";
 import { ROLE_LABELS, WORKING_HOME } from "@/lib/roles";
@@ -27,7 +28,7 @@ export function SidebarNav({
       <Link
         href={home}
         onClick={onNavigate}
-        className="mx-3 mt-5 mb-6 flex items-center gap-3 rounded-md px-2 py-1 outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+        className="mx-3 mt-5 mb-3 flex items-center gap-3 rounded-md px-2 py-1 outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
       >
         <BrandMark className="size-9" />
         <span className="leading-tight">
@@ -35,6 +36,8 @@ export function SidebarNav({
           <span className="block text-[11px] text-sidebar-foreground/60">IEM Student Branch</span>
         </span>
       </Link>
+
+      <Collar className="mx-5 mb-4" />
 
       <nav aria-label="Main" className="flex-1 space-y-6 overflow-y-auto px-3 pb-6">
         {groups.map((group) => (
@@ -51,7 +54,7 @@ export function SidebarNav({
                       onClick={onNavigate}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "group relative flex items-center gap-3 rounded-md py-2 pr-3 pl-8 text-[13.5px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+                        "group relative flex items-center gap-3 rounded-full py-2 pr-3 pl-8 text-[13.5px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-sidebar-ring",
                         active
                           ? "bg-sidebar-accent text-white"
                           : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-white"
@@ -59,13 +62,13 @@ export function SidebarNav({
                     >
                       <svg
                         aria-hidden="true"
-                        viewBox="0 0 6 8"
+                        viewBox="0 0 8 8"
                         className={cn(
-                          "absolute top-1/2 left-3.5 h-2 w-1.5 -translate-y-1/2 fill-trace transition-opacity",
+                          "absolute top-1/2 left-3 size-2 -translate-y-1/2 fill-trace transition-opacity",
                           active ? "opacity-100" : "opacity-0"
                         )}
                       >
-                        <path d="M0 0L6 4L0 8Z" />
+                        <circle cx="4" cy="4" r="4" />
                       </svg>
                       <Icon
                         className={cn(

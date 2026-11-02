@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Award, CalendarDays, ListChecks, ArrowLeftRight } from "lucide-react";
 import apsLogo from "@/assets/brand/ieee-aps-logo.png";
-import { PropagationArt } from "@/components/brand/propagation-art";
+import { DoraArt } from "@/components/brand/dora-art";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const INSIDE = [
@@ -41,7 +41,7 @@ export function AuthShell({
 
         <div className="relative min-h-0 flex-1">
           <div className="pointer-events-none absolute inset-x-10 inset-y-6 xl:inset-x-14">
-            <PropagationArt id="auth-desktop" className="size-full" />
+            <DoraArt id="auth-desktop" className="size-full" />
           </div>
         </div>
 
@@ -71,7 +71,7 @@ export function AuthShell({
         <ThemeToggle className="absolute top-4 right-4 z-20 max-lg:bg-ink/70 max-lg:text-white max-lg:ring-1 max-lg:ring-white/15 max-lg:backdrop-blur-sm max-lg:hover:bg-ink max-lg:hover:text-white sm:top-5 sm:right-6" />
         <div className="relative overflow-hidden bg-ink px-6 pt-8 pb-7 text-white sm:px-10 lg:hidden">
           <div className="pointer-events-none absolute -top-2 -right-2 size-36 sm:size-44">
-            <PropagationArt id="auth-mobile" className="size-full" />
+            <DoraArt id="auth-mobile" className="size-full" />
           </div>
           <LogoCard className="relative z-10 w-40 px-3.5 py-3" />
           <p className="type-eyebrow relative z-10 mt-5 text-trace">IEM Student Branch Chapter</p>

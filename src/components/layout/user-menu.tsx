@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { PropagationArt } from "@/components/brand/propagation-art";
+import { DoraArt } from "@/components/brand/dora-art";
 import { logoutAction } from "@/lib/actions/auth";
 import { ROLE_LABELS } from "@/lib/roles";
 import { initials } from "@/lib/format";
@@ -64,7 +64,7 @@ export function UserMenu({ profile }: { profile: Profile }) {
       <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-1.5rem)] p-0">
         <div className="relative overflow-hidden bg-ink px-4 pt-5 pb-4 text-white">
           <div className="pointer-events-none absolute -top-3 -right-3 size-28 opacity-70">
-            <PropagationArt id="profile-menu" className="size-full" />
+            <DoraArt id="profile-menu" className="size-full" />
           </div>
           <div className="relative flex items-center gap-3">
             <Avatar className="size-14 ring-2 ring-trace">
