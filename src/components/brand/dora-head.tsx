@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useFollowEyes } from "@/components/brand/use-follow-eyes";
 
-// Doraemon's head with a calm, closed mouth, drawn as a soft-shaded vector.
+// Doraemon's head with a gentle closed smile, drawn as a soft-shaded vector.
 // His eyes follow the pointer and he blinks now and then.
 
 // Coordinates are in the viewBox below; the head is centred on x = 120.
@@ -107,9 +107,9 @@ export function DoraHead({ className }: { className?: string }) {
         <path d="M 148 120 L 190 126" />
       </g>
 
-      {/* Nose, and a calm closed mouth */}
-      <path d="M 120 104 V 151" stroke={INK} strokeWidth="2.3" strokeLinecap="round" />
-      <path d="M 90 148 Q 120 154 150 148" fill="none" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
+      {/* Nose, and a gentle closed smile */}
+      <path d="M 120 104 V 148.5" stroke={INK} strokeWidth="2.3" strokeLinecap="round" />
+      <path d="M 80 132 C 92 154 148 154 160 132" fill="none" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
       <circle cx="120" cy="92" r="12" fill="url(#dora-head-red)" stroke={INK} strokeWidth="2.2" />
       <ellipse cx="115.5" cy="87.5" rx="3.8" ry="2.8" fill="#ffffff" opacity="0.9" />
 
