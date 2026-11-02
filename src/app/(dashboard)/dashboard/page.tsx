@@ -2,6 +2,7 @@ import Link from "next/link";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { CalendarDays, HandHeart, UserCheck, Users } from "lucide-react";
 import { SkyScene, Town } from "@/components/brand/sky-scene";
+import { DoraFace } from "@/components/brand/dora-face";
 import type { Readout } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DateBlock } from "@/components/shared/date-block";
@@ -100,9 +101,10 @@ export default async function DashboardPage() {
       <section className="relative overflow-hidden rounded-2xl bg-[#0b1d45] text-white">
         <div className="relative px-6 pt-7 sm:px-8 sm:pt-9">
           <SkyScene id="dashboard" town={false} />
-          <div className="relative z-10">
+          {/* Kept narrow so it never covers the face (which grins on hover). */}
+          <div className="relative z-10 max-w-[65%] sm:max-w-[58%]">
             <p className="type-eyebrow text-trace">Overview</p>
-            <h1 className="type-display mt-2 max-w-[70%] text-[1.8rem] font-bold leading-[1.08] tracking-[-0.02em] sm:text-[2.4rem]">
+            <h1 className="type-display mt-2 text-[1.8rem] font-bold leading-[1.08] tracking-[-0.02em] sm:text-[2.4rem]">
               Welcome back, {profile.full_name.split(" ")[0] || "there"}
             </h1>
             <p className="mt-2 text-sm text-white/75">
@@ -110,10 +112,12 @@ export default async function DashboardPage() {
               {profile.position ? ` · ${profile.position}` : ""}
             </p>
           </div>
-          <Town
-            id="dashboard-town"
-            className="relative -mx-6 mt-4 block h-20 w-[calc(100%+3rem)] sm:-mx-8 sm:h-28 sm:w-[calc(100%+4rem)]"
-          />
+          <div className="relative -mx-6 mt-4 h-20 sm:-mx-8 sm:h-28">
+            <Town id="dashboard-town-back" layer="back" className="absolute inset-0 size-full" />
+            {/* Peeks up from behind the nearest rooftops. */}
+            <DoraFace className="absolute right-4 bottom-7 w-24 sm:right-[20%] sm:bottom-10 sm:w-36 lg:right-[24%] lg:bottom-12 lg:w-40" />
+            <Town id="dashboard-town-front" layer="front" className="pointer-events-none absolute inset-0 size-full" />
+          </div>
         </div>
         <div className="px-6 pt-1 pb-6 sm:px-8">
           <HeroReadouts

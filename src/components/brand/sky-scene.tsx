@@ -32,9 +32,21 @@ const PETALS = Array.from({ length: 14 }, () => ({
   drift: Math.round(60 + rand() * 120),
 }));
 
-type House = { x: number; w: number; h: number; roof: "gable" | "hip" | "flat"; windows: { x: number; y: number; lit: boolean }[] };
+type House = {
+  x: number;
+  w: number;
+  h: number;
+  roof: "gable" | "hip" | "flat";
+  windows: { x: number; y: number; lit: boolean }[];
+};
 
-function buildRow(seed: number, baseH: number, varH: number, minW: number, varW: number) {
+function buildRow(
+  seed: number,
+  baseH: number,
+  varH: number,
+  minW: number,
+  varW: number,
+) {
   const r = seeded(seed);
   const houses: House[] = [];
   let x = -30;
@@ -48,7 +60,12 @@ function buildRow(seed: number, baseH: number, varH: number, minW: number, varW:
     const rows = h > 70 ? 2 : 1;
     for (let c = 0; c < cols; c++) {
       for (let k = 0; k < rows; k++) {
-        if (r() < 0.75) windows.push({ x: x + 12 + c * ((w - 24) / cols), y: 200 - h + 14 + k * 30, lit: r() < 0.6 });
+        if (r() < 0.75)
+          windows.push({
+            x: x + 12 + c * ((w - 24) / cols),
+            y: 200 - h + 14 + k * 30,
+            lit: r() < 0.6,
+          });
       }
     }
     houses.push({ x, w, h, roof, windows });
@@ -64,8 +81,10 @@ const NEAR = buildRow(23, 38, 46, 70, 70);
 function housePath({ x, w, h, roof }: House) {
   const top = 200 - h;
   const body = `M ${x} 200 V ${top} H ${x + w} V 200 Z`;
-  if (roof === "flat") return `${body} M ${x - 3} ${top} H ${x + w + 3} V ${top - 6} H ${x - 3} Z`;
-  if (roof === "gable") return `${body} M ${x - 9} ${top + 2} L ${x + w / 2} ${top - 26} L ${x + w + 9} ${top + 2} Z`;
+  if (roof === "flat")
+    return `${body} M ${x - 3} ${top} H ${x + w + 3} V ${top - 6} H ${x - 3} Z`;
+  if (roof === "gable")
+    return `${body} M ${x - 9} ${top + 2} L ${x + w / 2} ${top - 26} L ${x + w + 9} ${top + 2} Z`;
   return `${body} M ${x - 8} ${top + 2} Q ${x + 6} ${top - 4} ${x + 14} ${top - 18} H ${x + w - 14} Q ${x + w - 6} ${top - 4} ${x + w + 8} ${top + 2} Z`;
 }
 
@@ -74,14 +93,32 @@ const POLES = [170, 560, 1060, 1430];
 function wire(y: number, sag: number) {
   const pts = [-20, ...POLES, TOWN_W + 20];
   let d = `M ${pts[0]} ${y}`;
-  for (let i = 1; i < pts.length; i++) d += ` Q ${(pts[i - 1] + pts[i]) / 2} ${y + sag} ${pts[i]} ${y}`;
+  for (let i = 1; i < pts.length; i++)
+    d += ` Q ${(pts[i - 1] + pts[i]) / 2} ${y + sag} ${pts[i]} ${y}`;
   return d;
 }
 
-export function Town({ id, className }: { id: string; className?: string }) {
+// "back" = distant rooftops, power lines and the lamp; "front" = the nearest houses.
+// Drawing them separately lets something sit between the two layers.
+export function Town({
+  id,
+  className,
+  layer = "all",
+}: {
+  id: string;
+  className?: string;
+  layer?: "all" | "back" | "front";
+}) {
+  const back = layer !== "front";
+  const front = layer !== "back";
   const glow = `${id}-lamp-glow`;
   return (
-    <svg viewBox={`0 0 ${TOWN_W} 200`} preserveAspectRatio="xMidYMax slice" className={className} aria-hidden="true">
+    <svg
+      viewBox={`0 0 ${TOWN_W} 200`}
+      preserveAspectRatio="xMidYMax slice"
+      className={className}
+      aria-hidden="true"
+    >
       <defs>
         <radialGradient id={glow}>
           <stop offset="0" stopColor="#ffd88a" stopOpacity="0.75" />
@@ -89,64 +126,83 @@ export function Town({ id, className }: { id: string; className?: string }) {
         </radialGradient>
       </defs>
 
-      {/* Distant rooftops */}
-      <g fill="#1d3f82">
-        {FAR.map((h, i) => (
-          <path key={i} d={housePath({ ...h, h: h.h + 30 })} />
-        ))}
-      </g>
-      <g fill="#ffd27a" opacity="0.55">
-        {FAR.flatMap((h, i) =>
-          h.windows.filter((w) => w.lit).map((w, j) => <rect key={`${i}-${j}`} x={w.x} y={w.y - 30} width="4" height="5" rx="1" />),
-        )}
-      </g>
-
-      {/* Power lines */}
-      <g stroke="#0b1d45" fill="none" strokeWidth="1.4">
-        <path d={wire(52, 18)} />
-        <path d={wire(62, 24)} />
-      </g>
-      <g fill="#0b1d45">
-        {POLES.map((x) => (
-          <g key={x}>
-            <rect x={x - 3} y="40" width="6" height="160" />
-            <rect x={x - 22} y="48" width="44" height="4" rx="1" />
-            <rect x={x - 16} y="58" width="32" height="3" rx="1" />
+      {back && (
+        <>
+          {/* Distant rooftops */}
+          <g fill="#1d3f82">
+            {FAR.map((h, i) => (
+              <path key={i} d={housePath({ ...h, h: h.h + 30 })} />
+            ))}
           </g>
-        ))}
-      </g>
+          <g fill="#ffd27a" opacity="0.55">
+            {FAR.flatMap((h, i) =>
+              h.windows
+                .filter((w) => w.lit)
+                .map((w, j) => (
+                  <rect
+                    key={`${i}-${j}`}
+                    x={w.x}
+                    y={w.y - 30}
+                    width="4"
+                    height="5"
+                    rx="1"
+                  />
+                )),
+            )}
+          </g>
 
-      {/* Street lamp */}
-      <circle cx="822" cy="92" r="70" fill={`url(#${glow})`} />
-      <g fill="#0b1d45">
-        <rect x="808" y="92" width="4" height="108" />
-        <path d="M 810 92 Q 810 80 822 80 L 826 80 L 826 84 L 822 84 Q 814 84 814 92 Z" />
-      </g>
-      <circle cx="824" cy="88" r="5" fill="#fff1c4" />
+          {/* Power lines */}
+          <g stroke="#0b1d45" fill="none" strokeWidth="1.4">
+            <path d={wire(52, 18)} />
+            <path d={wire(62, 24)} />
+          </g>
+          <g fill="#0b1d45">
+            {POLES.map((x) => (
+              <g key={x}>
+                <rect x={x - 3} y="40" width="6" height="160" />
+                <rect x={x - 22} y="48" width="44" height="4" rx="1" />
+                <rect x={x - 16} y="58" width="32" height="3" rx="1" />
+              </g>
+            ))}
+          </g>
 
-      {/* Nearby houses */}
-      <rect x="-40" y="192" width={TOWN_W + 80} height="8" fill="#0b1d45" />
-      <g fill="#0b1d45">
-        {NEAR.map((h, i) => (
-          <path key={i} d={housePath(h)} />
-        ))}
-      </g>
-      <g>
-        {NEAR.flatMap((h, i) =>
-          h.windows.map((w, j) => (
-            <rect
-              key={`${i}-${j}`}
-              x={w.x}
-              y={w.y}
-              width="11"
-              height="12"
-              rx="1.5"
-              fill={w.lit ? "#ffc764" : "#1a3366"}
-              opacity={w.lit ? 0.95 : 1}
-            />
-          )),
-        )}
-      </g>
+          {/* Street lamp */}
+          <circle cx="822" cy="92" r="70" fill={`url(#${glow})`} />
+          <g fill="#0b1d45">
+            <rect x="808" y="92" width="4" height="108" />
+            <path d="M 810 92 Q 810 80 822 80 L 826 80 L 826 84 L 822 84 Q 814 84 814 92 Z" />
+          </g>
+          <circle cx="824" cy="88" r="5" fill="#fff1c4" />
+        </>
+      )}
+
+      {front && (
+        <>
+          {/* Nearby houses */}
+          <rect x="-40" y="192" width={TOWN_W + 80} height="8" fill="#0b1d45" />
+          <g fill="#0b1d45">
+            {NEAR.map((h, i) => (
+              <path key={i} d={housePath(h)} />
+            ))}
+          </g>
+          <g>
+            {NEAR.flatMap((h, i) =>
+              h.windows.map((w, j) => (
+                <rect
+                  key={`${i}-${j}`}
+                  x={w.x}
+                  y={w.y}
+                  width="11"
+                  height="12"
+                  rx="1.5"
+                  fill={w.lit ? "#ffc764" : "#1a3366"}
+                  opacity={w.lit ? 0.95 : 1}
+                />
+              )),
+            )}
+          </g>
+        </>
+      )}
     </svg>
   );
 }
@@ -165,7 +221,13 @@ export function SkyScene({
   moon?: boolean;
 }) {
   return (
-    <div className={cn("pointer-events-none absolute inset-0 overflow-hidden sky-gradient", className)} aria-hidden="true">
+    <div
+      className={cn(
+        "pointer-events-none absolute inset-0 overflow-hidden sky-gradient",
+        className,
+      )}
+      aria-hidden="true"
+    >
       <style>{`
         .sky-twinkle { animation: sky-twinkle 3.4s ease-in-out infinite; }
         @keyframes sky-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
@@ -191,7 +253,11 @@ export function SkyScene({
       `}</style>
 
       {/* Stars, clouds, shooting star, petals */}
-      <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 size-full">
+      <svg
+        viewBox="0 0 1200 600"
+        preserveAspectRatio="xMidYMid slice"
+        className="absolute inset-0 size-full"
+      >
         <g fill="#ffffff">
           {STARS.map((s, i) => (
             <circle
@@ -205,18 +271,35 @@ export function SkyScene({
             />
           ))}
         </g>
-        <g fill="#ffffff" opacity="0.13" className="sky-cloud" style={{ filter: "blur(10px)" }}>
+        <g
+          fill="#ffffff"
+          opacity="0.13"
+          className="sky-cloud"
+          style={{ filter: "blur(10px)" }}
+        >
           <ellipse cx="260" cy="150" rx="150" ry="26" />
           <ellipse cx="330" cy="132" rx="90" ry="24" />
           <ellipse cx="820" cy="250" rx="170" ry="22" />
           <ellipse cx="900" cy="236" rx="80" ry="20" />
         </g>
         <g className="sky-shoot">
-          <path d="M 900 60 L 1010 0" stroke={`url(#${id}-shoot-tail)`} strokeWidth="2" strokeLinecap="round" />
+          <path
+            d="M 900 60 L 1010 0"
+            stroke={`url(#${id}-shoot-tail)`}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
           <circle cx="900" cy="60" r="2.5" fill="#ffffff" />
         </g>
         <defs>
-          <linearGradient id={`${id}-shoot-tail`} x1="900" y1="60" x2="1010" y2="0" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id={`${id}-shoot-tail`}
+            x1="900"
+            y1="60"
+            x2="1010"
+            y2="0"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0" stopColor="#ffffff" />
             <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
           </linearGradient>
