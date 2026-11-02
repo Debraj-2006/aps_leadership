@@ -2,7 +2,7 @@ import Link from "next/link";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { CalendarDays, HandHeart, UserCheck, Users } from "lucide-react";
 import { SkyScene, Town } from "@/components/brand/sky-scene";
-import { DoraWave } from "@/components/brand/dora-wave";
+import { DoraHead } from "@/components/brand/dora-head";
 import type { Readout } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DateBlock } from "@/components/shared/date-block";
@@ -114,9 +114,9 @@ export default async function DashboardPage() {
           </div>
           <div className="relative -mx-6 mt-4 h-20 sm:-mx-8 sm:h-28">
             <Town id="dashboard-town-back" layer="back" className="absolute inset-0 size-full" />
+            {/* Doraemon peeks up from behind the nearest rooftops. */}
+            <DoraHead className="absolute right-3 bottom-5 w-24 sm:right-[20%] sm:bottom-8 sm:w-32 lg:right-[22%] lg:bottom-10 lg:w-36" />
             <Town id="dashboard-town-front" layer="front" className="pointer-events-none absolute inset-0 size-full" />
-            {/* Doraemon stands in front of the houses and waves. */}
-            <DoraWave className="absolute right-2 -bottom-1 w-28 sm:right-[15%] sm:w-36 lg:w-40" />
           </div>
         </div>
         <div className="px-6 pt-1 pb-6 sm:px-8">
