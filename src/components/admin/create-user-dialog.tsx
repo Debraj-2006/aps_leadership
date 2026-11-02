@@ -79,7 +79,7 @@ export function CreateUserDialog() {
           </div>
           <div className="space-y-2">
             <Label>Role</Label>
-            <Select name="role" defaultValue="working">
+            <Select name="role" defaultValue="working" items={ROLE_LABELS}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>

@@ -64,7 +64,7 @@ export function NewHandoverDialog({
         <form action={handleSubmit} className="grid grid-cols-2 gap-3">
           <div className="col-span-2 space-y-2">
             <Label>Designation</Label>
-            <Select name="designation_id" required>
+            <Select name="designation_id" required items={Object.fromEntries(designations.map((d) => [d.id, d.title]))}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select designation" />
               </SelectTrigger>
@@ -79,7 +79,7 @@ export function NewHandoverDialog({
           </div>
           <div className="space-y-2">
             <Label>Outgoing member</Label>
-            <Select name="outgoing_profile_id" required>
+            <Select name="outgoing_profile_id" required items={Object.fromEntries(profiles.map((p) => [p.id, p.full_name]))}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select person" />
               </SelectTrigger>
@@ -94,7 +94,7 @@ export function NewHandoverDialog({
           </div>
           <div className="space-y-2">
             <Label>Incoming member</Label>
-            <Select name="incoming_profile_id" required>
+            <Select name="incoming_profile_id" required items={Object.fromEntries(profiles.map((p) => [p.id, p.full_name]))}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select person" />
               </SelectTrigger>

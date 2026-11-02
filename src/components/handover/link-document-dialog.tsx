@@ -60,7 +60,12 @@ export function LinkDocumentDialog({
         <form action={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Document</Label>
-            <Select name="document_id" required disabled={availableDocuments.length === 0}>
+            <Select
+              name="document_id"
+              required
+              disabled={availableDocuments.length === 0}
+              items={Object.fromEntries(availableDocuments.map((d) => [d.id, d.title]))}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={availableDocuments.length ? "Select a document" : "No documents available"} />
               </SelectTrigger>

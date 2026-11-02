@@ -185,6 +185,27 @@
   background-size: 260px 240px, 260px 240px, 260px 240px, 260px 240px, 100% 100%;
 }
 
+/* Page-banner gadgets float gently; the bamboo-copter's blades spin. */
+.gadget-float {
+  animation: gadget-float 5s ease-in-out infinite;
+}
+@keyframes gadget-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.gadget-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gadget-spin 0.45s linear infinite;
+}
+@keyframes gadget-spin {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.18); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gadget-float, .gadget-spin { animation: none; }
+}
+
 /* Faint graph-paper grid for empty plots and empty states. */
 @utility graticule {
   background-image:

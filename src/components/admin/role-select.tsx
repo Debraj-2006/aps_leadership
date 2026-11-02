@@ -26,7 +26,7 @@ export function RoleSelect({ profileId, role }: { profileId: string; role: UserR
   }
 
   return (
-    <Select defaultValue={role} onValueChange={handleChange} disabled={pending}>
+    <Select defaultValue={role} onValueChange={handleChange} disabled={pending} items={ROLE_LABELS}>
       <SelectTrigger className="w-48">
         <SelectValue />
       </SelectTrigger>

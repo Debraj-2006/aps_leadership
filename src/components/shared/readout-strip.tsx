@@ -16,10 +16,13 @@ export function ReadoutStrip({ items, className }: { items: Readout[]; className
     6: "grid-cols-2 md:grid-cols-3 xl:grid-cols-6",
   };
   return (
-    <dl className={cn("grid gap-px overflow-hidden rounded-xl border bg-border", cols[items.length] ?? "grid-cols-2", className)}>
+    <dl className={cn("grid gap-3", cols[items.length] ?? "grid-cols-2", className)}>
       {items.map((item) => (
-        <div key={item.label} className="flex min-w-0 flex-col bg-card px-4 py-4 sm:px-5">
-          <dt className="type-eyebrow truncate text-muted-foreground">{item.label}</dt>
+        <div
+          key={item.label}
+          className="flex min-w-0 flex-col rounded-2xl bg-card px-4 py-4 shadow-[0_14px_34px_-24px_rgb(0_90_160/0.55)] ring-1 ring-primary/12 sm:px-5"
+        >
+          <dt className="type-eyebrow truncate text-primary">{item.label}</dt>
           <dd className="type-display mt-2 truncate text-[1.6rem] leading-none font-bold tracking-[-0.02em] tabular-nums">
             {item.value}
           </dd>

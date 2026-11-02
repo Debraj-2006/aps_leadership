@@ -26,15 +26,21 @@ import {
 import { createEvent, updateEvent } from "@/lib/actions/events";
 import type { ChapterEvent } from "@/lib/types";
 
-const EVENT_TYPES = [
-  "technical_talk",
-  "workshop",
-  "webinar",
-  "competition",
-  "seminar",
-  "social",
-  "other",
-];
+const EVENT_TYPES: Record<string, string> = {
+  technical_talk: "Technical talk",
+  workshop: "Workshop",
+  webinar: "Webinar",
+  competition: "Competition",
+  seminar: "Seminar",
+  social: "Social",
+  other: "Other",
+};
+
+const EVENT_STATUSES: Record<string, string> = {
+  planned: "Planned",
+  completed: "Completed",
+  cancelled: "Cancelled",
+};
 
 export function EventFormDialog({ editing }: { editing?: ChapterEvent }) {
   const [open, setOpen] = useState(false);
@@ -76,14 +82,14 @@ export function EventFormDialog({ editing }: { editing?: ChapterEvent }) {
           </div>
           <div className="space-y-2">
             <Label>Type</Label>
-            <Select name="type" defaultValue={editing?.type ?? "technical_talk"}>
+            <Select name="type" defaultValue={editing?.type ?? "technical_talk"} items={EVENT_TYPES}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {EVENT_TYPES.map((t) => (
-                  <SelectItem key={t} value={t} className="capitalize">
-                    {t.replace("_", " ")}
+                {Object.entries(EVENT_TYPES).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -91,14 +97,16 @@ export function EventFormDialog({ editing }: { editing?: ChapterEvent }) {
           </div>
           <div className="space-y-2">
             <Label>Status</Label>
-            <Select name="status" defaultValue={editing?.status ?? "planned"}>
+            <Select name="status" defaultValue={editing?.status ?? "planned"} items={EVENT_STATUSES}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="planned">Planned</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                {Object.entries(EVENT_STATUSES).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

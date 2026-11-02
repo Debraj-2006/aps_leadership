@@ -23,6 +23,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { uploadDocument } from "@/lib/actions/documents";
+const CATEGORIES: Record<string, string> = {
+  event_report: "Event report",
+  meeting_minutes: "Meeting minutes",
+  certificate: "Certificate",
+  financial_report: "Financial report",
+  handover: "Handover",
+  other: "Other",
+};
+
+const VISIBILITY: Record<string, string> = {
+  all: "Everyone",
+  committee_only: "Committee only",
+  admin_only: "Admins only",
+};
+
 export function UploadDialog() {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -62,30 +77,31 @@ export function UploadDialog() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label>Category</Label>
-              <Select name="category" defaultValue="event_report">
+              <Select name="category" defaultValue="event_report" items={CATEGORIES}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="event_report">Event Report</SelectItem>
-                  <SelectItem value="meeting_minutes">Meeting Minutes</SelectItem>
-                  <SelectItem value="certificate">Certificate</SelectItem>
-                  <SelectItem value="financial_report">Financial Report</SelectItem>
-                  <SelectItem value="handover">Handover</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  {Object.entries(CATEGORIES).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Visibility</Label>
-              <Select name="visibility" defaultValue="all">
+              <Select name="visibility" defaultValue="all" items={VISIBILITY}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Everyone</SelectItem>
-                  <SelectItem value="committee_only">Committee only</SelectItem>
-                  <SelectItem value="admin_only">Admins only</SelectItem>
+                  {Object.entries(VISIBILITY).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

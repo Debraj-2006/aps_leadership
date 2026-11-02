@@ -90,7 +90,11 @@ export function MemberFormDialog({ designations, profiles, editing }: Props) {
           {!editing && mode === "existing" && (
             <div className="space-y-2">
               <Label>Person</Label>
-              <Select name="profile_id" required>
+              <Select
+                name="profile_id"
+                required
+                items={Object.fromEntries(profiles.map((p) => [p.id, `${p.full_name} · ${p.email}`]))}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a person" />
                 </SelectTrigger>
@@ -129,7 +133,7 @@ export function MemberFormDialog({ designations, profiles, editing }: Props) {
               </div>
               <div className="col-span-2 space-y-2">
                 <Label>System role</Label>
-                <Select name="role" defaultValue="working">
+                <Select name="role" defaultValue="working" items={ROLE_LABELS}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -147,7 +151,12 @@ export function MemberFormDialog({ designations, profiles, editing }: Props) {
 
           <div className="space-y-2">
             <Label>Designation</Label>
-            <Select name="designation_id" defaultValue={editing?.designation_id} required>
+            <Select
+              name="designation_id"
+              defaultValue={editing?.designation_id}
+              required
+              items={Object.fromEntries(designations.map((d) => [d.id, d.title]))}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select designation" />
               </SelectTrigger>

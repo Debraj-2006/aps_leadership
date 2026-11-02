@@ -66,7 +66,7 @@ export function AddTaskDialog({ handoverRecordId }: { handoverRecordId: string }
             </div>
             <div className="space-y-2">
               <Label>Priority</Label>
-              <Select name="priority" defaultValue="medium">
+              <Select name="priority" defaultValue="medium" items={{ low: "Low", medium: "Medium", high: "High" }}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
