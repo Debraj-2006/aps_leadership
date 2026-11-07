@@ -8,7 +8,7 @@ import { getSessionProfile } from "@/lib/auth";
 import { logActivity } from "@/lib/actions/activity";
 
 const PHOTO_BUCKET = "avatars";
-const PHOTO_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+const PHOTO_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png" };
 const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 
 function optional(formData: FormData, key: string) {
@@ -77,7 +77,7 @@ export async function uploadMyPhoto(formData: FormData) {
   const file = formData.get("photo");
   if (!(file instanceof File) || file.size === 0) return { error: "Choose a photo first." };
   const ext = PHOTO_TYPES[file.type];
-  if (!ext) return { error: "Use a JPG, PNG or WebP image." };
+  if (!ext) return { error: "Use a JPG or PNG photo." };
   if (file.size > MAX_PHOTO_BYTES) return { error: "That photo is too large. Use one under 2 MB." };
 
   const admin = createAdminClient();
@@ -90,7 +90,10 @@ export async function uploadMyPhoto(formData: FormData) {
     await admin.storage.createBucket(PHOTO_BUCKET, { public: true });
     ({ error: uploadError } = await upload());
   }
-  if (uploadError) return { error: "The photo couldn't be uploaded. Please try again." };
+  if (uploadError) {
+    console.error("Photo upload failed:", uploadError.message);
+    return { error: "The photo couldn't be uploaded. Please try again." };
+  }
 
   const publicUrl = admin.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
   const supabase = await createClient();

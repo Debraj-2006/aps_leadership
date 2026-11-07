@@ -8,18 +8,46 @@ import { MemberAvatar } from "@/components/shared/member-avatar";
 import { removeMyPhoto, uploadMyPhoto } from "@/lib/actions/profile";
 
 const SIZE = 400; // pixels; plenty for every place a photo appears
+const MAX_BYTES = 20 * 1024 * 1024;
+
+// JPG or PNG, judged by type or by name: some phone galleries label photos oddly
+// ("image/jpg", a generic type, or none at all).
+function isJpgOrPng(file: File) {
+  return /^image\/(jpeg|jpg|pjpeg|png)$/i.test(file.type) || /\.(jpe?g|png)$/i.test(file.name);
+}
+
+// Reads the picture, falling back to a plain <img> if the browser's fast decoder refuses it.
+async function decode(file: File): Promise<{ source: CanvasImageSource; width: number; height: number; done: () => void }> {
+  try {
+    const bitmap = await createImageBitmap(file);
+    return { source: bitmap, width: bitmap.width, height: bitmap.height, done: () => bitmap.close() };
+  } catch {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.src = url;
+    try {
+      await img.decode();
+    } catch (error) {
+      URL.revokeObjectURL(url);
+      throw error;
+    }
+    return { source: img, width: img.naturalWidth, height: img.naturalHeight, done: () => URL.revokeObjectURL(url) };
+  }
+}
 
 // Crops the chosen picture to a centred square and shrinks it before upload.
 async function toSquareJpeg(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const side = Math.min(bitmap.width, bitmap.height);
+  const { source, width, height, done } = await decode(file);
+  const side = Math.min(width, height);
   const canvas = document.createElement("canvas");
   canvas.width = SIZE;
   canvas.height = SIZE;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("no canvas");
-  ctx.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, SIZE, SIZE);
-  bitmap.close();
+  ctx.fillStyle = "#ffffff"; // transparent PNG areas become white, not black
+  ctx.fillRect(0, 0, SIZE, SIZE);
+  ctx.drawImage(source, (width - side) / 2, (height - side) / 2, side, side, 0, 0, SIZE, SIZE);
+  done();
   return new Promise((resolve, reject) =>
     canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("no blob"))), "image/jpeg", 0.88)
   );
@@ -37,15 +65,19 @@ export function PhotoUploader({ name, src }: { name: string; src: string | null 
 
   async function handleChoose(file: File | undefined) {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Choose an image file, such as a JPG or PNG.");
-      return;
-    }
     try {
+      if (!isJpgOrPng(file)) {
+        toast.error("Use a JPG or PNG photo. Other formats, such as iPhone HEIC photos, aren't supported.");
+        return;
+      }
+      if (file.size > MAX_BYTES) {
+        toast.error("That photo is over 20 MB. Choose a smaller JPG or PNG.");
+        return;
+      }
       const blob = await toSquareJpeg(file);
       setDraft({ blob, url: URL.createObjectURL(blob) });
     } catch {
-      toast.error("This photo format isn't supported here. Use a JPG or PNG.");
+      toast.error("This photo couldn't be opened. Try another JPG or PNG.");
     } finally {
       if (inputRef.current) inputRef.current.value = "";
     }
@@ -56,11 +88,15 @@ export function PhotoUploader({ name, src }: { name: string; src: string | null 
     const formData = new FormData();
     formData.append("photo", new File([draft.blob], "photo.jpg", { type: "image/jpeg" }));
     startTransition(async () => {
-      const result = await uploadMyPhoto(formData);
-      if (result?.error) toast.error(result.error);
-      else {
-        toast.success("Photo saved. It now shows across the hub.");
-        setDraft(null);
+      try {
+        const result = await uploadMyPhoto(formData);
+        if (result?.error) toast.error(result.error);
+        else {
+          toast.success("Photo saved. It now shows across the hub.");
+          setDraft(null);
+        }
+      } catch {
+        toast.error("The photo couldn't be uploaded. Check your connection and try again.");
       }
     });
   }
@@ -91,7 +127,7 @@ export function PhotoUploader({ name, src }: { name: string; src: string | null 
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept=".jpg,.jpeg,.png,image/jpeg,image/png"
         className="sr-only"
         id="photo-input"
         onChange={(e) => handleChoose(e.target.files?.[0])}
@@ -112,7 +148,7 @@ export function PhotoUploader({ name, src }: { name: string; src: string | null 
         </>
       ) : (
         <>
-          <p className="mt-4 text-sm text-muted-foreground">A clear photo of your face works best. We crop it to a square.</p>
+          <p className="mt-4 text-sm text-muted-foreground">JPG or PNG. A clear photo of your face works best; we crop it to a square.</p>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
             <Button variant="outline" onClick={() => inputRef.current?.click()} disabled={pending}>
               <Camera className="size-4" />
