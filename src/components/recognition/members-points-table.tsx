@@ -1,11 +1,10 @@
 import { Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { BadgeChip } from "@/components/recognition/badge-chip";
 import { ROLE_LABELS } from "@/lib/roles";
-import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { LeaderboardEntry } from "@/lib/actions/recognition";
 
@@ -41,9 +40,7 @@ export function MembersPointsTable({ entries, currentUserId }: { entries: Leader
                   <TableRow key={e.profile_id} className={cn(isMe && "bg-trace/10 hover:bg-trace/15")}>
                     <TableCell className="pl-5">
                       <div className="flex items-center gap-3">
-                        <Avatar className="size-8">
-                          <AvatarFallback className="text-[11px] font-medium">{initials(e.full_name)}</AvatarFallback>
-                        </Avatar>
+                        <MemberAvatar name={e.full_name} src={e.avatar_url} className="size-8" fallbackClassName="text-[11px] font-medium" />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium leading-tight">
                             {e.full_name}

@@ -6,6 +6,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { NewTaskDialog } from "@/components/tasks/new-task-dialog";
 import { TaskCard } from "@/components/tasks/task-card";
 import { getCurrentProfile } from "@/lib/auth";
+import { getAnnouncements } from "@/lib/actions/announcements";
+import { PinnedAnnouncements } from "@/components/announcements/pinned-announcements";
 import { getAllTasks, getTaskFormOptions, getTasksAssignedByMe, getTasksAssignedToMe } from "@/lib/actions/tasks";
 import { canAssignTasks, isAdminRole, RECOGNITION_RECIPIENT_ROLES } from "@/lib/roles";
 import type { MemberTask, TaskStatus } from "@/lib/types";
@@ -43,9 +45,12 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
   ];
   const view: View = views.includes(requested as View) ? (requested as View) : (views[0] ?? "mine");
 
-  const [tasks, options] = await Promise.all([
+  // Tasks is the Working Committee's home page, so their pinned announcements show here.
+  const isHome = profile.role === "working";
+  const [tasks, options, pinned] = await Promise.all([
     view === "mine" ? getTasksAssignedToMe() : view === "assigned" ? getTasksAssignedByMe() : getAllTasks(),
     canAssign ? getTaskFormOptions() : Promise.resolve(null),
+    isHome ? getAnnouncements({ pinnedOnly: true, limit: 3 }) : Promise.resolve(null),
   ]);
 
   const description =
@@ -66,6 +71,8 @@ export default async function TasksPage({ searchParams }: { searchParams: Promis
           ) : undefined
         }
       />
+
+      {pinned && <PinnedAnnouncements items={pinned.items} />}
 
       {views.length > 1 && (
         <nav aria-label="Task views" className="inline-flex rounded-lg border bg-card p-1">

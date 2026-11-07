@@ -14,7 +14,9 @@ export type GadgetName =
   | "pipes"
   | "ballot"
   | "stamp"
-  | "tv";
+  | "tv"
+  | "megaphone"
+  | "camera";
 
 function Svg({ children, className, label }: { children: React.ReactNode; className?: string; label: string }) {
   return (
@@ -362,6 +364,66 @@ function Tv({ className }: { className?: string }) {
   );
 }
 
+/** A megaphone for announcements, sound waves rolling out. */
+function Megaphone({ className }: { className?: string }) {
+  return (
+    <Svg className={className} label="megaphone">
+      <defs>
+        <linearGradient id="gd-horn" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ff6b6b" />
+          <stop offset="1" stopColor="#d61f2c" />
+        </linearGradient>
+        <radialGradient id="gd-rim" cx="0.35" cy="0.3" r="0.8">
+          <stop offset="0" stopColor="#fff3ad" />
+          <stop offset="1" stopColor="#d9a300" />
+        </radialGradient>
+      </defs>
+      <path d="M 42 64 L 36 92 Q 35 96 39 96 L 47 96 Q 50 96 51 93 L 56 66 Z" fill="#2e3b52" stroke={INK} strokeWidth="2.4" strokeLinejoin="round" />
+      <rect x="14" y="46" width="16" height="24" rx="5" fill="#2e3b52" stroke={INK} strokeWidth="2.4" />
+      <path d="M 28 48 L 76 26 L 76 90 L 28 68 Z" fill="url(#gd-horn)" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
+      <path d="M 34 52 L 70 35" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" opacity="0.4" />
+      <ellipse cx="77" cy="58" rx="9" ry="33" fill="url(#gd-rim)" stroke={INK} strokeWidth="2.6" />
+      <ellipse cx="78.5" cy="58" rx="4.5" ry="25" fill="#7a0a10" />
+      <path d="M 94 42 Q 103 58 94 74" fill="none" stroke="#ffffff" strokeWidth="3.2" strokeLinecap="round" />
+      <path d="M 102 33 Q 116 58 102 83" fill="none" stroke="#ffcf00" strokeWidth="3.2" strokeLinecap="round" />
+      <Sparkle x={104} y={16} r={5.5} />
+      <Sparkle x={16} y={26} r={4.5} fill="#ffffff" />
+    </Svg>
+  );
+}
+
+/** A camera for profile photos, in Doraemon blue with a white lens ring. */
+function Camera({ className }: { className?: string }) {
+  return (
+    <Svg className={className} label="camera">
+      <defs>
+        <linearGradient id="gd-cam" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#4cc0f5" />
+          <stop offset="1" stopColor="#0a73b8" />
+        </linearGradient>
+        <radialGradient id="gd-lens" cx="0.35" cy="0.3" r="0.8">
+          <stop offset="0" stopColor="#7fd3ff" />
+          <stop offset="0.6" stopColor="#1d5fb0" />
+          <stop offset="1" stopColor="#0d2a5c" />
+        </radialGradient>
+      </defs>
+      <rect x="30" y="28" width="30" height="16" rx="4" fill="#2e3b52" stroke={INK} strokeWidth="2.4" />
+      <rect x="80" y="31" width="16" height="11" rx="3" fill="#e5132a" stroke={INK} strokeWidth="2.2" />
+      <rect x="12" y="40" width="96" height="62" rx="13" fill="url(#gd-cam)" stroke={INK} strokeWidth="2.6" />
+      <rect x="12" y="84" width="96" height="7" fill="#ffffff" opacity="0.9" />
+      <path d="M 12 84 H 108 M 12 91 H 108" stroke={INK} strokeWidth="1.6" />
+      <rect x="20" y="48" width="16" height="10" rx="2.5" fill="#fff3ad" stroke={INK} strokeWidth="2" />
+      <circle cx="62" cy="69" r="25" fill="#ffffff" stroke={INK} strokeWidth="2.6" />
+      <circle cx="62" cy="69" r="17" fill="url(#gd-lens)" stroke={INK} strokeWidth="2.2" />
+      <circle cx="56" cy="63" r="4.5" fill="#ffffff" opacity="0.85" />
+      <circle cx="68" cy="75" r="2" fill="#ffffff" opacity="0.6" />
+      <rect x="16" y="45" width="4" height="34" rx="2" fill="#ffffff" opacity="0.3" />
+      <Sparkle x={104} y={18} r={6} />
+      <Sparkle x={14} y={20} r={4.5} fill="#ffffff" />
+    </Svg>
+  );
+}
+
 const GADGETS: Record<GadgetName, (p: { className?: string }) => React.ReactElement> = {
   door: Door,
   pocket: Pocket,
@@ -374,6 +436,8 @@ const GADGETS: Record<GadgetName, (p: { className?: string }) => React.ReactElem
   ballot: Ballot,
   stamp: Stamp,
   tv: Tv,
+  megaphone: Megaphone,
+  camera: Camera,
 };
 
 export const GADGET_NAMES = Object.keys(GADGETS) as GadgetName[];

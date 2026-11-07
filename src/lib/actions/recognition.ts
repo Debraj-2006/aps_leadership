@@ -28,6 +28,7 @@ export interface LeaderboardEntry {
   full_name: string;
   email: string;
   role: UserRole;
+  avatar_url: string | null;
   points: number;
   badges: LeaderboardBadge[];
 }
@@ -116,7 +117,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   const supabase = await createClient();
 
   const [{ data: profiles }, { data: points }, badges] = await Promise.all([
-    supabase.from("profiles").select("id, full_name, email, role"),
+    supabase.from("profiles").select("id, full_name, email, role, avatar_url"),
     supabase.from("point_awards").select("recipient_id, points"),
     selectBadges(supabase, "id, recipient_id, badge, note, created_at, event:events(title)", (q) => q.order("created_at", { ascending: false })
     ),
@@ -151,6 +152,7 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       full_name: m.full_name || m.email,
       email: m.email,
       role: m.role as UserRole,
+      avatar_url: (m.avatar_url as string | null) ?? null,
       points: totals.get(m.id) ?? 0,
       badges: badgeMap.get(m.id) ?? [],
     }));

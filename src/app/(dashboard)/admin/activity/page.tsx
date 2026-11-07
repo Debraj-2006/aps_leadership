@@ -4,11 +4,10 @@ import { ScrollText } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { getRecentActivity } from "@/lib/actions/activity";
 import { getCurrentProfile } from "@/lib/auth";
 import { isAdminRole } from "@/lib/roles";
-import { initials } from "@/lib/format";
 
 export default async function ActivityLogPage() {
   const { profile } = await getCurrentProfile();
@@ -29,9 +28,7 @@ export default async function ActivityLogPage() {
               const name = log.actor?.full_name ?? "System";
               return (
                 <li key={log.id} className="flex items-center gap-3 px-5 py-3">
-                  <Avatar className="size-8">
-                    <AvatarFallback className="text-[11px] font-medium">{initials(name)}</AvatarFallback>
-                  </Avatar>
+                  <MemberAvatar name={name} src={log.actor?.avatar_url} className="size-8" fallbackClassName="text-[11px] font-medium" />
                   <p className="min-w-0 flex-1 text-sm">
                     <span className="font-medium">{name}</span> <span className="text-muted-foreground">{log.action}</span>
                   </p>

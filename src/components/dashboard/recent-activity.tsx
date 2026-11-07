@@ -2,16 +2,15 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ScrollText } from "lucide-react";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { EmptyState } from "@/components/shared/empty-state";
-import { initials } from "@/lib/format";
 import type { ActivityLog, Profile } from "@/lib/types";
 
 export function RecentActivity({
   activity,
   showAllLink = false,
 }: {
-  activity: (ActivityLog & { actor?: Pick<Profile, "full_name" | "role"> | null })[];
+  activity: (ActivityLog & { actor?: Pick<Profile, "full_name" | "role" | "avatar_url"> | null })[];
   showAllLink?: boolean;
 }) {
   return (
@@ -35,9 +34,7 @@ export function RecentActivity({
               const name = log.actor?.full_name ?? "System";
               return (
                 <li key={log.id} className="flex items-start gap-3">
-                  <Avatar className="size-7">
-                    <AvatarFallback className="text-[10px] font-medium">{initials(name)}</AvatarFallback>
-                  </Avatar>
+                  <MemberAvatar name={name} src={log.actor?.avatar_url} className="size-7" fallbackClassName="text-[10px] font-medium" />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm leading-snug">
                       <span className="font-medium">{name}</span>{" "}

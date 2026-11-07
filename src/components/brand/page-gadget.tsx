@@ -18,6 +18,8 @@ const GADGET_FOR_PATH: [string, GadgetName][] = [
   ["/voting", "ballot"],
   ["/admin/users", "stamp"],
   ["/admin/activity", "tv"],
+  ["/announcements", "megaphone"],
+  ["/profile", "camera"],
 ];
 
 export function gadgetForPath(pathname: string): GadgetName | null {

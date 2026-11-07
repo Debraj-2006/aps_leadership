@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { StatusPill } from "@/components/shared/status-pill";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CreateUserDialog } from "@/components/admin/create-user-dialog";
 import { RoleSelect } from "@/components/admin/role-select";
@@ -13,7 +13,6 @@ import { ActiveToggleButton } from "@/components/admin/active-toggle-button";
 import { getAllProfiles } from "@/lib/actions/users";
 import { getCurrentProfile } from "@/lib/auth";
 import { canApprovePendingUsers, canManageUsers, ROLE_LABELS } from "@/lib/roles";
-import { initials } from "@/lib/format";
 import type { Profile, UserRole } from "@/lib/types";
 
 export default async function UserManagementPage() {
@@ -52,9 +51,7 @@ export default async function UserManagementPage() {
             {waiting.map((p) => (
               <li key={p.id} className="flex flex-col rounded-xl border bg-card p-4 shadow-[inset_3px_0_0_0_var(--trace)]">
                 <div className="flex items-start gap-3">
-                  <Avatar className="size-9">
-                    <AvatarFallback className="text-[11px] font-medium">{initials(p.full_name)}</AvatarFallback>
-                  </Avatar>
+                  <MemberAvatar name={p.full_name} src={p.avatar_url} className="size-9" fallbackClassName="text-[11px] font-medium" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{p.full_name || p.email}</p>
                     <p className="truncate text-xs text-muted-foreground">{p.email}</p>
@@ -108,9 +105,7 @@ export default async function UserManagementPage() {
                 <TableRow key={p.id}>
                   <TableCell className="pl-5">
                     <div className="flex items-center gap-3">
-                      <Avatar className="size-8">
-                        <AvatarFallback className="text-[11px] font-medium">{initials(p.full_name)}</AvatarFallback>
-                      </Avatar>
+                      <MemberAvatar name={p.full_name} src={p.avatar_url} className="size-8" fallbackClassName="text-[11px] font-medium" />
                       <div>
                         <p className="text-sm font-medium leading-tight">{p.full_name}</p>
                         <p className="text-xs text-muted-foreground">

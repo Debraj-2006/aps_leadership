@@ -10,6 +10,7 @@ import {
   Hash,
   IdCard,
   LogOut,
+  Pencil,
   Phone,
   ShieldCheck,
   User as UserIcon,
@@ -22,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { SkyScene } from "@/components/brand/sky-scene";
 import { logoutAction } from "@/lib/actions/auth";
 import { ROLE_LABELS } from "@/lib/roles";
@@ -54,20 +55,21 @@ export function UserMenu({ profile }: { profile: Profile }) {
           />
         }
       >
-        <Avatar className="size-9">
-          <AvatarFallback className="bg-ink text-xs font-semibold text-white">
-            {initials(name) || <UserIcon className="size-4" />}
-          </AvatarFallback>
-        </Avatar>
+        <MemberAvatar name={name} src={profile.avatar_url} className="size-9" fallbackClassName="bg-ink text-xs font-semibold text-white">
+          {initials(name) || <UserIcon className="size-4" />}
+        </MemberAvatar>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-1.5rem)] p-0">
         <div className="relative overflow-hidden bg-ink px-4 pt-5 pb-14 text-white">
           <SkyScene id="profile-menu" town="sm" petals={false} />
           <div className="relative flex items-center gap-3">
-            <Avatar className="size-14 ring-2 ring-trace">
-              <AvatarFallback className="bg-white/10 text-base font-semibold text-white">{initials(name)}</AvatarFallback>
-            </Avatar>
+            <MemberAvatar
+              name={name}
+              src={profile.avatar_url}
+              className="size-14 ring-2 ring-trace"
+              fallbackClassName="bg-white/10 text-base font-semibold text-white"
+            />
             <div className="min-w-0">
               <p className="truncate text-base font-semibold">{name}</p>
               <p className="truncate text-xs text-white/70">{profile.email}</p>
@@ -99,6 +101,9 @@ export function UserMenu({ profile }: { profile: Profile }) {
 
         <DropdownMenuSeparator className="mx-0 my-0" />
         <div className="p-1.5">
+          <DropdownMenuItem render={<Link href="/profile" />} className="gap-2 px-2.5 py-2">
+            <Pencil className="size-4" /> Edit my profile
+          </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/my-recognition" />} className="gap-2 px-2.5 py-2">
             <Award className="size-4" /> My points &amp; badges
           </DropdownMenuItem>

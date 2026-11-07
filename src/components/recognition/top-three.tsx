@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { Medal, Trophy } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { BadgeChip } from "@/components/recognition/badge-chip";
 import { ROLE_LABELS } from "@/lib/roles";
-import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { LeaderboardEntry } from "@/lib/actions/recognition";
 
@@ -44,9 +43,7 @@ export function TopThree({ entries, currentUserId }: { entries: LeaderboardEntry
                   <Medal className={cn("size-6", place.medal)} />
                   <span className="type-display mt-0.5 text-sm font-bold">{place.label}</span>
                 </div>
-                <Avatar className="size-9">
-                  <AvatarFallback className="text-[11px] font-medium">{initials(e.full_name)}</AvatarFallback>
-                </Avatar>
+                <MemberAvatar name={e.full_name} src={e.avatar_url} className="size-9" fallbackClassName="text-[11px] font-medium" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">
                     {e.full_name}

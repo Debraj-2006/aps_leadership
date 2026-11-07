@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { StatusPill } from "@/components/shared/status-pill";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MemberFormDialog } from "@/components/leadership/member-form-dialog";
 import { DeleteMemberButton } from "@/components/leadership/delete-member-button";
@@ -41,11 +42,12 @@ function MemberCard({ m, featured }: { m: DirectoryMember; featured?: boolean })
         featured && "border-trace/40",
       )}
     >
-      <Avatar className={cn("size-11", featured && "ring-2 ring-trace")}>
-        <AvatarFallback className={cn("text-sm font-semibold", featured ? "bg-ink text-white" : "bg-primary/10 text-primary")}>
-          {initials(m.full_name)}
-        </AvatarFallback>
-      </Avatar>
+      <MemberAvatar
+        name={m.full_name}
+        src={m.avatar_url}
+        className={cn("size-11", featured && "ring-2 ring-trace")}
+        fallbackClassName={cn("text-sm font-semibold", featured ? "bg-ink text-white" : "bg-primary/10 text-primary")}
+      />
       <div className="min-w-0">
         <p className="truncate font-medium leading-tight">{m.full_name}</p>
         <p className="mt-0.5 truncate text-sm text-muted-foreground">{m.position || ROLE_LABELS[m.role]}</p>

@@ -3,13 +3,15 @@ import { differenceInCalendarDays, parseISO } from "date-fns";
 import { CalendarDays, HandHeart, UserCheck, Users } from "lucide-react";
 import { SkyScene, Town } from "@/components/brand/sky-scene";
 import { DoraHead } from "@/components/brand/dora-head";
+import { PinnedAnnouncements } from "@/components/announcements/pinned-announcements";
+import { getAnnouncements } from "@/lib/actions/announcements";
 import type { Readout } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DateBlock } from "@/components/shared/date-block";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { getDashboardStats, getRecentEvents, getUpcomingDeadlines, getUpcomingEvents } from "@/lib/actions/dashboard";
 import { getRecentActivity } from "@/lib/actions/activity";
 import { getLeaderboard, getRecentRecognition } from "@/lib/actions/recognition";
@@ -21,7 +23,6 @@ import { redirect } from "next/navigation";
 import { canApprovePendingUsers, isAdminRole, ROLE_LABELS, WORKING_HOME } from "@/lib/roles";
 import { getMemberDirectory, getPendingApprovalCount } from "@/lib/actions/users";
 import { getPendingPointRequestCount } from "@/lib/actions/point-requests";
-import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { ActivityLog, HandoverTask, Profile } from "@/lib/types";
 
@@ -73,7 +74,7 @@ export default async function DashboardPage() {
   if (profile.role === "working") redirect(WORKING_HOME);
   const isAdmin = isAdminRole(profile.role);
 
-  const [stats, activity, deadlines, upcomingEvents, leaderboard, recentRecognition, tasks, directory, recentEvents, pendingApprovals, pendingPointRequests] = await Promise.all([
+  const [stats, activity, deadlines, upcomingEvents, leaderboard, recentRecognition, tasks, directory, recentEvents, pendingApprovals, pendingPointRequests, pinned] = await Promise.all([
     getDashboardStats(),
     getRecentActivity(6),
     getUpcomingDeadlines(5),
@@ -85,6 +86,7 @@ export default async function DashboardPage() {
     getRecentEvents(5),
     canApprovePendingUsers(profile.role) ? getPendingApprovalCount() : Promise.resolve(0),
     canApprovePendingUsers(profile.role) ? getPendingPointRequestCount() : Promise.resolve(0),
+    getAnnouncements({ pinnedOnly: true, limit: 3 }),
   ]);
 
   const openTasks = tasks.filter((t) => t.status !== "completed").length;
@@ -137,6 +139,8 @@ export default async function DashboardPage() {
         </div>
         <div className="h-2 bg-collar" aria-hidden="true" />
       </section>
+
+      <PinnedAnnouncements items={pinned.items} />
 
       {pendingApprovals > 0 && (
         <Link
@@ -242,9 +246,7 @@ export default async function DashboardPage() {
               <ul className="space-y-3">
                 {executives.slice(0, 6).map((m) => (
                   <li key={m.id} className="flex items-center gap-3">
-                    <Avatar className="size-8">
-                      <AvatarFallback className="bg-ink text-[11px] font-medium text-white">{initials(m.full_name)}</AvatarFallback>
-                    </Avatar>
+                    <MemberAvatar name={m.full_name} src={m.avatar_url} className="size-8" fallbackClassName="bg-ink text-[11px] font-medium text-white" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{m.full_name}</p>
                       <p className="truncate text-xs text-muted-foreground">{m.position || ROLE_LABELS[m.role]}</p>
@@ -263,7 +265,7 @@ export default async function DashboardPage() {
         )}
 
         <RecentActivity
-          activity={activity as (ActivityLog & { actor?: Pick<Profile, "full_name" | "role"> | null })[]}
+          activity={activity as (ActivityLog & { actor?: Pick<Profile, "full_name" | "role" | "avatar_url"> | null })[]}
           showAllLink={isAdmin}
         />
       </div>

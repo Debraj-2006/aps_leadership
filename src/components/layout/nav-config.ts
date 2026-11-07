@@ -12,6 +12,7 @@ import {
   UsersRound,
   Vote,
   Award,
+  Megaphone,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/types";
@@ -31,7 +32,13 @@ export interface NavGroup {
 const ADMIN: UserRole[] = ["super_admin", "faculty_advisor", "executive"];
 
 export const NAV_GROUPS: NavGroup[] = [
-  { label: "Overview", items: [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }] },
+  {
+    label: "Overview",
+    items: [
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { label: "Announcements", href: "/announcements", icon: Megaphone },
+    ],
+  },
   {
     label: "Committee",
     items: [
@@ -78,6 +85,7 @@ const WORKING_GROUPS: NavGroup[] = [
   {
     label: "Chapter",
     items: [
+      { label: "Announcements", href: "/announcements", icon: Megaphone },
       { label: "Members", href: "/members", icon: UsersRound },
       { label: "Voting", href: "/voting", icon: Vote },
     ],

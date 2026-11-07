@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { ReadoutStrip } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AwardPointsDialog } from "@/components/recognition/award-points-dialog";
 import { AwardBadgeDialog } from "@/components/recognition/award-badge-dialog";
@@ -17,7 +17,6 @@ import { getBadge } from "@/lib/badges";
 import { canAwardRecognition, peerPointRecipientRoles, ROLE_LABELS } from "@/lib/roles";
 import { getPointRequestOptions } from "@/lib/actions/point-requests";
 import { RequestPointsDialog } from "@/components/recognition/request-points-dialog";
-import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const MEDAL_COLOR: Record<number, string> = {
@@ -155,9 +154,7 @@ export default async function LeaderboardPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="size-8">
-                              <AvatarFallback className="text-[11px] font-medium">{initials(e.full_name)}</AvatarFallback>
-                            </Avatar>
+                            <MemberAvatar name={e.full_name} src={e.avatar_url} className="size-8" fallbackClassName="text-[11px] font-medium" />
                             <div className="min-w-0">
                               <p className="truncate text-sm font-medium leading-tight">
                                 {e.full_name}

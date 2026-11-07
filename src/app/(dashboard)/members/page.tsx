@@ -5,12 +5,11 @@ import { PageHeader } from "@/components/shared/page-header";
 import { ReadoutStrip } from "@/components/shared/readout-strip";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MemberAvatar } from "@/components/shared/member-avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCurrentProfile } from "@/lib/auth";
 import { getMemberDirectory } from "@/lib/actions/users";
 import { ROLE_LABELS } from "@/lib/roles";
-import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/types";
 
@@ -77,9 +76,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                   <TableRow key={m.id} className={cn(isMe && "bg-trace/10 hover:bg-trace/15")}>
                     <TableCell className="pl-5">
                       <div className="flex items-center gap-3">
-                        <Avatar className="size-8">
-                          <AvatarFallback className="text-[11px] font-medium">{initials(m.full_name)}</AvatarFallback>
-                        </Avatar>
+                        <MemberAvatar name={m.full_name} src={m.avatar_url} className="size-8" fallbackClassName="text-[11px] font-medium" />
                         <p className="text-sm font-medium">
                           {m.full_name || "Unnamed member"}
                           {isMe && <span className="font-normal text-muted-foreground"> (you)</span>}
