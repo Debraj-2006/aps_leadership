@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
+import { celebrate } from "@/lib/celebrate";
 import { Check, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { reviewPointRequest, withdrawPointRequest } from "@/lib/actions/point-requests";
@@ -14,7 +15,10 @@ export function ReviewPointRequestButtons({ id, recipientName, points }: { id: s
     startTransition(async () => {
       const result = await reviewPointRequest(id, approve);
       if (result?.error) toast.error(result.error);
-      else toast.success(approve ? `${points} points given to ${recipientName}.` : "Request declined.");
+      else {
+        toast.success(approve ? `${points} points given to ${recipientName}.` : "Request declined.");
+        if (approve) celebrate();
+      }
     });
   }
 

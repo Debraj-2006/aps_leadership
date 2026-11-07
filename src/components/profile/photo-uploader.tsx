@@ -16,6 +16,18 @@ function isJpgOrPng(file: File) {
   return /^image\/(jpeg|jpg|pjpeg|png)$/i.test(file.type) || /\.(jpe?g|png)$/i.test(file.name);
 }
 
+// iPhone photos (HEIC/HEIF) are converted to JPG in the browser before cropping.
+function isHeic(file: File) {
+  return /^image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+}
+
+async function heicToJpeg(file: File): Promise<File> {
+  const { default: heic2any } = await import("heic2any"); // loaded only when needed (it's large)
+  const out = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
+  const blob = Array.isArray(out) ? out[0] : out;
+  return new File([blob], "photo.jpg", { type: "image/jpeg" });
+}
+
 // Reads the picture, falling back to a plain <img> if the browser's fast decoder refuses it.
 async function decode(file: File): Promise<{ source: CanvasImageSource; width: number; height: number; done: () => void }> {
   try {
@@ -57,6 +69,7 @@ export function PhotoUploader({ name, src }: { name: string; src: string | null 
   const inputRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<{ blob: Blob; url: string } | null>(null);
   const [pending, startTransition] = useTransition();
+  const [preparing, setPreparing] = useState(false);
 
   // Release the preview's memory when it's replaced or the page closes.
   useEffect(() => () => {
@@ -66,19 +79,22 @@ export function PhotoUploader({ name, src }: { name: string; src: string | null 
   async function handleChoose(file: File | undefined) {
     if (!file) return;
     try {
-      if (!isJpgOrPng(file)) {
-        toast.error("Use a JPG or PNG photo. Other formats, such as iPhone HEIC photos, aren't supported.");
+      const heic = isHeic(file);
+      if (!heic && !isJpgOrPng(file)) {
+        toast.error("Use a JPG, PNG or iPhone (HEIC) photo.");
         return;
       }
       if (file.size > MAX_BYTES) {
-        toast.error("That photo is over 20 MB. Choose a smaller JPG or PNG.");
+        toast.error("That photo is over 20 MB. Choose a smaller one.");
         return;
       }
-      const blob = await toSquareJpeg(file);
+      setPreparing(true);
+      const blob = await toSquareJpeg(heic ? await heicToJpeg(file) : file);
       setDraft({ blob, url: URL.createObjectURL(blob) });
     } catch {
-      toast.error("This photo couldn't be opened. Try another JPG or PNG.");
+      toast.error("This photo couldn't be opened. Try another JPG, PNG or iPhone photo.");
     } finally {
+      setPreparing(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
@@ -127,7 +143,7 @@ export function PhotoUploader({ name, src }: { name: string; src: string | null 
       <input
         ref={inputRef}
         type="file"
-        accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+        accept=".jpg,.jpeg,.png,.heic,.heif,image/jpeg,image/png,image/heic,image/heif"
         className="sr-only"
         id="photo-input"
         onChange={(e) => handleChoose(e.target.files?.[0])}
@@ -148,11 +164,11 @@ export function PhotoUploader({ name, src }: { name: string; src: string | null 
         </>
       ) : (
         <>
-          <p className="mt-4 text-sm text-muted-foreground">JPG or PNG. A clear photo of your face works best; we crop it to a square.</p>
+          <p className="mt-4 text-sm text-muted-foreground">JPG, PNG or iPhone photo. A clear photo of your face works best; we crop it to a square.</p>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
-            <Button variant="outline" onClick={() => inputRef.current?.click()} disabled={pending}>
-              <Camera className="size-4" />
-              {src ? "Change photo" : "Add a photo"}
+            <Button variant="outline" onClick={() => inputRef.current?.click()} disabled={pending || preparing}>
+              {preparing ? <Loader2 className="size-4 animate-spin" /> : <Camera className="size-4" />}
+              {preparing ? "Preparing photo…" : src ? "Change photo" : "Add a photo"}
             </Button>
             {src && (
               <Button variant="ghost" onClick={remove} disabled={pending}>

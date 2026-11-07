@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { celebrate } from "@/lib/celebrate";
 import { Award, Loader2, PenLine } from "lucide-react";
 import { cn } from "cn";
 import {
@@ -52,6 +53,7 @@ export function AwardBadgeDialog({
       if (result?.error) toast.error(result.error);
       else {
         toast.success("Badge awarded.");
+        celebrate();
         setOpen(false);
         setCustomName("");
         setBadge(BADGES[0].key);

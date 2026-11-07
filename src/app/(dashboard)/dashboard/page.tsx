@@ -14,9 +14,10 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/componen
 import { MemberAvatar } from "@/components/shared/member-avatar";
 import { getDashboardStats, getRecentEvents, getUpcomingDeadlines, getUpcomingEvents } from "@/lib/actions/dashboard";
 import { getRecentActivity } from "@/lib/actions/activity";
-import { getLeaderboard, getRecentRecognition } from "@/lib/actions/recognition";
+import { getLeaderboard, getMemberOfMonth, getRecentRecognition } from "@/lib/actions/recognition";
 import { RecognitionFeed } from "@/components/recognition/recognition-feed";
 import { TopThree } from "@/components/recognition/top-three";
+import { MemberOfMonthCard } from "@/components/recognition/member-of-month";
 import { getAllTasks, getTasksAssignedToMe } from "@/lib/actions/tasks";
 import { getCurrentProfile } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -74,7 +75,7 @@ export default async function DashboardPage() {
   if (profile.role === "working") redirect(WORKING_HOME);
   const isAdmin = isAdminRole(profile.role);
 
-  const [stats, activity, deadlines, upcomingEvents, leaderboard, recentRecognition, tasks, directory, recentEvents, pendingApprovals, pendingPointRequests, pinned] = await Promise.all([
+  const [stats, activity, deadlines, upcomingEvents, leaderboard, recentRecognition, tasks, directory, recentEvents, pendingApprovals, pendingPointRequests, pinned, star] = await Promise.all([
     getDashboardStats(),
     getRecentActivity(6),
     getUpcomingDeadlines(5),
@@ -87,6 +88,7 @@ export default async function DashboardPage() {
     canApprovePendingUsers(profile.role) ? getPendingApprovalCount() : Promise.resolve(0),
     canApprovePendingUsers(profile.role) ? getPendingPointRequestCount() : Promise.resolve(0),
     getAnnouncements({ pinnedOnly: true, limit: 3 }),
+    getMemberOfMonth(),
   ]);
 
   const openTasks = tasks.filter((t) => t.status !== "completed").length;
@@ -177,6 +179,8 @@ export default async function DashboardPage() {
           <span className="text-sm font-medium text-primary group-hover:underline">Review</span>
         </Link>
       )}
+
+      <MemberOfMonthCard star={star} />
 
       <TopThree entries={leaderboard} currentUserId={profile.id} />
 

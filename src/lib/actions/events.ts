@@ -24,6 +24,12 @@ export async function getEvents(filters: {
   return data ?? [];
 }
 
+export async function getEvent(id: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
+  return data;
+}
+
 export async function createEvent(formData: FormData) {
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();

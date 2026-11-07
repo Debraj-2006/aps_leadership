@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fredoka, Martian_Mono, Nunito } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PwaSetup } from "@/components/pwa/pwa-setup";
 import "./globals.css";
 
 // Rounded, friendly type for the Doraemon theme.
@@ -29,6 +30,13 @@ export const metadata: Metadata = {
   title: "IEEE AP-S IEM | Leadership Hub",
   description:
     "Committee roster, events, documents, tasks, recognition and handovers for the IEEE Antennas & Propagation Society Student Branch Chapter at IEM.",
+  applicationName: "AP-S Hub",
+  appleWebApp: { capable: true, title: "AP-S Hub", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0077c0",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -38,6 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeProvider>
           <TooltipProvider delay={200}>
             {children}
+            <PwaSetup />
             <Toaster richColors position="top-right" />
           </TooltipProvider>
         </ThemeProvider>

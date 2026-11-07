@@ -454,3 +454,53 @@ export async function removeBadgeAward(id: string) {
   revalidateRecognition();
   return { success: true };
 }
+
+export interface MemberOfMonth {
+  monthLabel: string;
+  isCurrentMonth: boolean;
+  points: number;
+  awards: number;
+  member: { id: string; full_name: string; avatar_url: string | null; role: UserRole; position: string | null };
+}
+
+// India-time calendar month starting `offset` months from now, as ISO timestamps.
+function istMonth(offset: number) {
+  const ist = new Date(Date.now() + 5.5 * 60 * 60 * 1000);
+  const y = ist.getUTCFullYear();
+  const m = ist.getUTCMonth() + offset;
+  const start = new Date(Date.UTC(y, m, 1) - 5.5 * 60 * 60 * 1000);
+  const end = new Date(Date.UTC(y, m + 1, 1) - 5.5 * 60 * 60 * 1000);
+  const label = new Date(Date.UTC(y, m, 1)).toLocaleString("en-IN", { month: "long", timeZone: "UTC" });
+  return { start: start.toISOString(), end: end.toISOString(), label };
+}
+
+/** Whoever received the most points this month (or last month, early in a month with none yet). */
+export async function getMemberOfMonth(): Promise<MemberOfMonth | null> {
+  const supabase = await createClient();
+  for (const offset of [0, -1]) {
+    const month = istMonth(offset);
+    const { data } = await supabase
+      .from("point_awards")
+      .select("recipient_id, points")
+      .gte("created_at", month.start)
+      .lt("created_at", month.end);
+    const totals = new Map<string, { points: number; awards: number }>();
+    for (const row of data ?? []) {
+      const t = totals.get(row.recipient_id) ?? { points: 0, awards: 0 };
+      t.points += row.points;
+      t.awards += 1;
+      totals.set(row.recipient_id, t);
+    }
+    const ranked = [...totals.entries()].filter(([, t]) => t.points > 0).sort((a, b) => b[1].points - a[1].points || b[1].awards - a[1].awards);
+    if (ranked.length === 0) continue;
+    const [id, t] = ranked[0];
+    const { data: member } = await supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url, role, position")
+      .eq("id", id)
+      .maybeSingle();
+    if (!member) continue;
+    return { monthLabel: month.label, isCurrentMonth: offset === 0, points: t.points, awards: t.awards, member: member as MemberOfMonth["member"] };
+  }
+  return null;
+}

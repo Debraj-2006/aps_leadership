@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { format, parseISO } from "date-fns";
-import { CalendarDays, MapPin, Mic2, Users } from "lucide-react";
+import { CalendarDays, CalendarPlus, LayoutList, MapPin, Mic2, Users } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DateBlock } from "@/components/shared/date-block";
@@ -8,26 +9,14 @@ import { EventFormDialog } from "@/components/events/event-form-dialog";
 import { DeleteEventButton } from "@/components/events/delete-event-button";
 import { EventsFilterBar } from "@/components/events/events-filter-bar";
 import { ExportEventsButton } from "@/components/events/export-events-button";
+import { EventsCalendar } from "@/components/events/events-calendar";
 import { getEvents } from "@/lib/actions/events";
+import { googleCalendarUrl } from "@/lib/calendar";
+import { EVENT_TYPE_LABEL as TYPE_LABEL, meaningful } from "@/lib/event-labels";
+import { cn } from "@/lib/utils";
 import { getCurrentProfile } from "@/lib/auth";
 import { canManageEvents } from "@/lib/roles";
 import type { ChapterEvent } from "@/lib/types";
-
-const TYPE_LABEL: Record<string, string> = {
-  technical_talk: "Technical talk",
-  workshop: "Workshop",
-  webinar: "Webinar",
-  competition: "Competition",
-  seminar: "Seminar",
-  social: "Social",
-  other: "Other",
-};
-
-// "NA", "N/A", "-" and similar placeholders aren't worth showing.
-function meaningful(value: string | null) {
-  if (!value) return null;
-  return /^(na|n\/a|none|nil|-+|—)$/i.test(value.trim()) ? null : value;
-}
 
 function groupByMonth(events: ChapterEvent[]) {
   const groups: { month: string; events: ChapterEvent[] }[] = [];
@@ -43,7 +32,7 @@ function groupByMonth(events: ChapterEvent[]) {
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; type?: string; status?: string }>;
+  searchParams: Promise<{ search?: string; type?: string; status?: string; view?: string; month?: string }>;
 }) {
   const { profile } = await getCurrentProfile();
   const canManage = canManageEvents(profile.role);
@@ -53,6 +42,22 @@ export default async function EventsPage({
   const events = (await getEvents(params)) as ChapterEvent[];
   const groups = groupByMonth(events);
 
+  const view = params.view === "calendar" ? "calendar" : "list";
+  const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? parseISO(`${params.month}-01`) : new Date();
+  // Links keep the current search and filters.
+  const hrefWith = (changes: Record<string, string | null>) => {
+    const q = new URLSearchParams();
+    for (const [k, v] of Object.entries({ search: params.search, type: params.type, status: params.status, view, month: params.month }))
+      if (v) q.set(k, v);
+    for (const [k, v] of Object.entries(changes)) {
+      if (v) q.set(k, v);
+      else q.delete(k);
+    }
+    if (q.get("view") === "list") q.delete("view");
+    const qs = q.toString();
+    return qs ? `/events?${qs}` : "/events";
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -61,11 +66,34 @@ export default async function EventsPage({
         actions={canManage ? <EventFormDialog /> : undefined}
       />
 
+      <nav aria-label="Event views" className="inline-flex rounded-xl bg-card p-1 shadow-sm ring-1 ring-primary/12">
+        {(
+          [
+            ["list", "List", LayoutList],
+            ["calendar", "Calendar", CalendarDays],
+          ] as const
+        ).map(([v, label, Icon]) => (
+          <Link
+            key={v}
+            href={hrefWith({ view: v, month: v === "list" ? null : params.month ?? null })}
+            aria-current={view === v ? "page" : undefined}
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+              view === v ? "bg-ink text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <Icon className="size-4" /> {label}
+          </Link>
+        ))}
+      </nav>
+
       <EventsFilterBar>
         <ExportEventsButton events={events} scope="all-events" />
       </EventsFilterBar>
 
-      {events.length === 0 ? (
+      {view === "calendar" ? (
+        <EventsCalendar events={events} month={month} monthHref={(m) => hrefWith({ view: "calendar", month: m })} />
+      ) : events.length === 0 ? (
         <EmptyState
           icon={CalendarDays}
           title={filtered ? "No events match these filters" : "No events recorded yet"}
@@ -97,7 +125,11 @@ export default async function EventsPage({
                           <p className="type-eyebrow pt-0.5 text-[10px] text-muted-foreground">{TYPE_LABEL[e.type] ?? "Event"}</p>
                           {e.status !== "completed" && <StatusPill tone={status.tone}>{status.label}</StatusPill>}
                         </div>
-                        <h3 className="mt-1 pr-1 leading-snug font-medium">{e.title}</h3>
+                        <h3 className="mt-1 pr-1 leading-snug font-medium">
+                          <Link href={`/events/${e.id}`} className="outline-none after:absolute after:inset-0 after:rounded-xl hover:text-primary focus-visible:underline">
+                            {e.title}
+                          </Link>
+                        </h3>
                         {e.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{e.description}</p>}
 
                         {(venue || speaker || e.attendees_count > 0) && (
@@ -128,12 +160,24 @@ export default async function EventsPage({
                           </dl>
                         )}
 
-                        {canManage && (
-                          <div className="mt-2 -mb-1 flex justify-end gap-0.5 opacity-100 transition-opacity lg:opacity-0 lg:group-focus-within:opacity-100 lg:group-hover:opacity-100">
-                            <EventFormDialog editing={e} />
-                            <DeleteEventButton id={e.id} />
-                          </div>
-                        )}
+                        <div className="relative z-10 mt-2 -mb-1 flex justify-end gap-0.5">
+                          <a
+                            href={googleCalendarUrl(e)}
+                            target="_blank"
+                            rel="noreferrer"
+                            title="Add to Google Calendar"
+                            aria-label={`Add ${e.title} to Google Calendar`}
+                            className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
+                          >
+                            <CalendarPlus className="size-4" />
+                          </a>
+                          {canManage && (
+                            <>
+                              <EventFormDialog editing={e} />
+                              <DeleteEventButton id={e.id} />
+                            </>
+                          )}
+                        </div>
                       </div>
                     </article>
                   );

@@ -11,6 +11,8 @@ import { NotificationsBell } from "@/components/layout/notifications-bell";
 import { UserMenu } from "@/components/layout/user-menu";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { TenureCountdown } from "@/components/layout/tenure-countdown";
+import { CelebrationWatcher } from "@/components/layout/celebration-watcher";
+import { SearchDialog } from "@/components/layout/search-dialog";
 import { WORKING_HOME } from "@/lib/roles";
 import type { Profile, Notification } from "@/lib/types";
 
@@ -66,13 +68,15 @@ export function AppShell({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
-            <TenureCountdown variant="compact" className="lg:hidden" />
+            <SearchDialog />
+            <TenureCountdown variant="compact" className="max-sm:hidden lg:hidden" />
             <ThemeToggle />
             <NotificationsBell initialNotifications={notifications} initialUnread={unreadCount} />
             <UserMenu profile={profile} />
           </div>
         </header>
 
+        <CelebrationWatcher notifications={notifications} />
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-9">
           <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>

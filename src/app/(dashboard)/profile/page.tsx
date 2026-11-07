@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhotoUploader } from "@/components/profile/photo-uploader";
 import { ProfileForm } from "@/components/profile/profile-form";
+import { InstallAppCard } from "@/components/pwa/install-app-card";
 import { getCurrentProfile } from "@/lib/auth";
 import { ROLE_LABELS } from "@/lib/roles";
 
@@ -43,14 +44,25 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Your details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProfileForm profile={profile} />
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Your details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProfileForm profile={profile} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Phone app</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <InstallAppCard />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

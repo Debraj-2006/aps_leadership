@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { celebrate } from "@/lib/celebrate";
 import { Loader2, Sparkles } from "lucide-react";
 import {
   Dialog,
@@ -64,6 +65,7 @@ export function AwardPointsDialog({
       if (result?.error) toast.error(result.error);
       else {
         toast.success(Number(points) > 0 ? "Points awarded." : "Points deducted.");
+        if (Number(points) > 0) celebrate();
         setOpen(false);
         setPoints("10");
       }
